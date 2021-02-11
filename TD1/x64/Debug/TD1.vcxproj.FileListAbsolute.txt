@@ -1,0 +1,2 @@
+D:\CPP\TD1\x64\Debug\TD1.exe
+D:\CPP\TD1\x64\Debug\TD1.pdb

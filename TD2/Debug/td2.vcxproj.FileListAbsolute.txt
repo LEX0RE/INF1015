@@ -1,0 +1,2 @@
+D:\CPP\TP2\Debug\td2.exe
+D:\CPP\TP2\Debug\td2.pdb
