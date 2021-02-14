@@ -1,0 +1,19 @@
+
+# Pour le cours
+Debug/
+Release/
+*.exe
+*.pdb
+*.obj
+*.lib
+*.ilk
+*idb
+*.log
+*.tlog
+*.lastbuildstate
+ipch/
+*.sdf
+*.VC.db
+*.suo
+.vs/
+*.vcxproj.user
