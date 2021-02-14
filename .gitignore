@@ -1,14 +1,11 @@
 # Pour le cours
-TD2/Debug/
-TD1/Debug/
+Debug/
 Release/
-TD1/.vs/
-TD2/.vs/
+.vs/
 ipch/
 *.exe
 *.pdb
 *.obj
-*.lib
 *.ilk
 *idb
 *.log
