@@ -1,7 +1,10 @@
-
 # Pour le cours
-Debug/*
-Release/*
+TD2/Debug/
+TD1/Debug/
+Release/
+TD1/.vs/
+TD2/.vs/
+ipch/
 *.exe
 *.pdb
 *.obj
@@ -11,9 +14,9 @@ Release/*
 *.log
 *.tlog
 *.lastbuildstate
-ipch/*
 *.sdf
 *.VC.db
 *.suo
-.vs/*
 *.vcxproj.user
+*.log
+*.db
