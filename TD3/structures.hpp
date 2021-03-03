@@ -27,18 +27,18 @@ public:
 	ListeFilms() = default;
 	void ajouterFilm(Film* film);
 	void enleverFilm(const Film* film);
-	std::shared_ptr<Acteur> trouverActeur(const std::string& nomActeur) const;
+	shared_ptr<Acteur> trouverActeur(const string& nomActeur) const;
 	span<Film*> enSpan() const;
 	int size() const { return nElements; }
 	void detruire(bool possedeLesFilms = false);
-	Film* operator[](const int& index);
+	Film*& operator[](const int& index);
 	Film* trouverFilm(const function<bool(Film*)>& critere) const;
 	
 private:
-	void changeDimension(int nouvelleCapacite);
-
 	int capacite = 0, nElements = 0;
 	Film** elements = nullptr; // Pointeur vers un tableau de Film*, chaque Film* pointant vers un Film.
+
+	void changeDimension(int nouvelleCapacite);
 };
 
 template <typename T>
@@ -52,14 +52,14 @@ public:
 														elements_(make_unique<shared_ptr<T>[]>(taille)) {}
 
 	Liste(const Liste<T>& autre) : capacite_(autre.capacite_), 
-															nElements_(autre.nElements_), 
-															elements_(make_unique<shared_ptr<T>[]>(autre.capacite_)) 
+															   nElements_(autre.nElements_), 
+															   elements_(make_unique<shared_ptr<T>[]>(autre.capacite_))
 	{
 		for (int i : range(autre.nElements_))
 			elements_[i] = autre.elements_[i];
 	}
 	
-	void operator=(const Liste<T>& autre)
+	void operator=(const Liste<T>& autre) 
 	{
 		capacite_ = autre.capacite_;
 		nElements_ = autre.nElements_;
@@ -67,17 +67,28 @@ public:
 		for (int i : range(autre.nElements_))
 			elements_[i] = autre.elements_[i];
 	}
-	
-	span<shared_ptr<T>> enSpan() const {
+
+	shared_ptr<T>& operator[](const int& indice)
+	{
+		return elements_[indice];
+	}
+
+	span<shared_ptr<T>> enSpan() const 
+	{
 		return span(elements_.get(), nElements_);
 	}
 
-	void ajouter(shared_ptr<T> element) {
-		if (nElements_ == capacite_) // Devrait pas avoir à le faire car la capacité est lu dans le fichier
+	void ajouter(shared_ptr<T> element) 
+	{
+		if (nElements_ == capacite_) // Devrait pas avoir à le faire car la capacité est lue dans le fichier
 			changeDimension(max(1, capacite_ * 2));
 
 		elements_[nElements_++] = element;
 	}
+
+private:
+	int capacite_ = 0, nElements_ = 0;
+	unique_ptr<shared_ptr<T>[]> elements_; // unique_ptr vers un tableau de T
 
 	void changeDimension(int nouvelleCapacite)
 	{
@@ -90,12 +101,9 @@ public:
 		elements_ = move(nouvelleListe);
 		capacite_ = nouvelleCapacite;
 	}
-
-private:
-	int capacite_ = 0, nElements_ = 0;
-	unique_ptr<shared_ptr<T>[]> elements_; // unique_ptr vers un tableau de Acteur*, chaque Acteur* pointant vers un Film.
 };
 
+// Pour ne pas causer de problème de définition
 using ListeActeurs = Liste<Acteur>;
 
 struct Film

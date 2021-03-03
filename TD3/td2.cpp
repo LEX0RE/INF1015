@@ -63,6 +63,7 @@ Film* ListeFilms::trouverFilm(const function<bool(Film*)>& critere) const {
 	for (Film* film : enSpan())
 		if (critere(film))
 			return film;
+
 	return nullptr;
 }
 
@@ -74,13 +75,15 @@ ostream& operator<< (ostream& o, const Film& f)
 		<< "  Réalisateur: " << f.realisateur << "  Année :" << f.anneeSortie << endl
 		<< "  Recette: " << f.recette << "M$" << endl 
 		<< "Acteurs:" << endl;
+
 	for (const shared_ptr<Acteur> acteur : f.acteurs.enSpan())
 		o << *acteur;
+
 	return o;
 }
 //]
 
-Film* ListeFilms::operator[](const int& index) {
+Film*& ListeFilms::operator[](const int& index) {
 	return elements[index];
 }
 
@@ -92,8 +95,10 @@ void ListeFilms::changeDimension(int nouvelleCapacite)
 	
 	if (elements != nullptr) {  // Noter que ce test n'est pas nécessaire puique nElements sera zéro si elements est nul, donc la boucle ne tentera pas de faire de copie, et on a le droit de faire delete sur un pointeur nul (ça ne fait rien).
 		nElements = min(nouvelleCapacite, nElements);
+
 		for (int i : range(nElements))
 			nouvelleListe[i] = elements[i];
+
 		delete[] elements;
 	}
 	
@@ -105,6 +110,7 @@ void ListeFilms::ajouterFilm(Film* film)
 {
 	if (nElements == capacite)
 		changeDimension(max(1, capacite * 2));
+
 	elements[nElements++] = film;
 }
 //]
@@ -120,6 +126,7 @@ void ListeFilms::enleverFilm(const Film* film)
 		if (element == film) {
 			if (nElements > 1)
 				element = elements[nElements - 1];
+
 			nElements--;
 			return;
 		}
@@ -232,6 +239,7 @@ void ListeFilms::detruire(bool possedeLesFilms)
 	if (possedeLesFilms)
 		for (Film* film : enSpan())
 			detruireFilm(film);
+
 	delete[] elements;
 }
 //]
@@ -241,6 +249,7 @@ void afficherListeFilms(const ListeFilms& listeFilms)
 	static const string ligneDeSeparation = //[
 		"\033[32m────────────────────────────────────────\033[0m\n";
 	cout << ligneDeSeparation;
+
 	for (const Film* film : listeFilms.enSpan())
 		cout << *film <<  ligneDeSeparation;
 }
@@ -277,30 +286,43 @@ int main()
 
 	listeFilms.trouverActeur("Benedict Cumberbatch")->anneeNaissance = 1976;
 
+	/*
 	cout << ligneDeSeparation << "Liste des films où Benedict Cumberbatch joue sont:" << endl;
 	// Affiche la liste des films où Benedict Cumberbatch joue.  Il devrait y avoir Le Hobbit et Le jeu de l'imitation.
-	//afficherFilmographieActeur(listeFilms, "Benedict Cumberbatch");
-	
+	afficherFilmographieActeur(listeFilms, "Benedict Cumberbatch");
+	*/
+
 	// Chapitre 7 - 8 
 	cout << ligneDeSeparation;
+
 	Film skylien = *listeFilms[0];
 	skylien.titre = "Skylien";
-	skylien.acteurs.enSpan()[0] = listeFilms[1]->acteurs.enSpan()[0];
-	skylien.acteurs.enSpan()[0]->nom = "Daniel Wroughton Craig";
+	skylien.acteurs[0] = listeFilms[1]->acteurs[0];
+	skylien.acteurs[0]->nom = "Daniel Wroughton Craig";
+
 	cout << "\nAffichage de skylien :\n\t" << skylien << endl;
 	cout << "Affichage de listeFilms[0] :\n\t" << *listeFilms[0] << endl;
-	cout << "Affichage de listeFilms[1] :\n\t" << *listeFilms[1] << endl;
+	cout << "Affichage de listeFilms[1] :\n\t" << *listeFilms[1];
 
 	// Chapitre 10
 	cout << ligneDeSeparation;
-	cout << "Le film dont la recette est 955M$ est: " << endl;
-	cout << *listeFilms.trouverFilm([](Film* f) { return f->recette == 955; }) << endl;
+	cout << "Le film dont la recette est 955M$ est: \n" << endl;
+	cout << *listeFilms.trouverFilm([](Film* f) { return f->recette == 955; });
 
 	// Chapitre 9
-	Liste<string> listeTextes;
+	Liste<string> listeTextes = {};
 	listeTextes.ajouter(make_shared<string>("allo"));
 	listeTextes.ajouter(make_shared<string>("bonjour"));
 	Liste<string> listeTextes2 = listeTextes;
+	listeTextes[0] = make_shared<string>("salut");
+	*listeTextes[1] = "hola";
+
+	cout << ligneDeSeparation;
+	cout << "Affichage de listeTextes[0]: " << *listeTextes[0] << endl;
+	cout << "Affichage de listeTextes[1]: " << *listeTextes[1] << endl;
+	cout << "Affichage de listeTextes2[0]: " << *listeTextes2[0] << endl;
+	cout << "Affichage de listeTextes2[1]: " << *listeTextes2[1] << endl;
+	cout << ligneDeSeparation;
 
 	// Détruit et enlève le premier film de la liste (Alien).
 	detruireFilm(listeFilms.enSpan()[0]);
@@ -312,6 +334,8 @@ int main()
 	// Pour une couverture avec 0% de lignes non exécutées:
 	listeFilms.enleverFilm(nullptr); // Enlever un film qui n'est pas dans la liste (clairement que nullptr n'y est pas).
 	//afficherFilmographieActeur(listeFilms, "N'existe pas"); // Afficher les films d'un acteur qui n'existe pas.
+	listeFilms.trouverFilm([](Film* f) { return f->titre == "Test"; });
+	listeTextes = listeTextes2;
 
 	// Détruire tout avant de terminer le programme.
 	listeFilms.detruire(true);
