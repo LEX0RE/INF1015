@@ -13,6 +13,7 @@
 #include <memory>
 #include <sstream>
 #include <cppitertools/range.hpp>
+#include <functional>
 #include "gsl/span"
 using gsl::span;
 using namespace std;
@@ -20,7 +21,8 @@ using namespace iter;
 
 struct Film; struct Acteur; // Permet d'utiliser les types alors qu'ils seront défini après.
 
-class ListeFilms {
+class ListeFilms 
+{
 public:
 	ListeFilms() = default;
 	void ajouterFilm(Film* film);
@@ -30,7 +32,8 @@ public:
 	int size() const { return nElements; }
 	void detruire(bool possedeLesFilms = false);
 	Film* operator[](const int& index);
-
+	Film* trouverFilm(const function<bool(Film*)>& critere) const;
+	
 private:
 	void changeDimension(int nouvelleCapacite);
 
@@ -38,56 +41,62 @@ private:
 	Film** elements = nullptr; // Pointeur vers un tableau de Film*, chaque Film* pointant vers un Film.
 };
 
-class ListeActeurs {
+template <typename T>
+class Liste 
+{
 public:
-	ListeActeurs() = default;
+	Liste() = default;
 
-	ListeActeurs(const int taille) : capacite(taille), 
-																	 nElements(0), 
-																	 elements(make_unique<shared_ptr<Acteur>[]>(taille)) {}
+	Liste(const int taille) : capacite_(taille), 
+														nElements_(0), 
+														elements_(make_unique<shared_ptr<T>[]>(taille)) {}
 
-	ListeActeurs(const ListeActeurs& autre) : capacite(autre.capacite), 
-																						nElements(autre.nElements), 
-																						elements(make_unique<shared_ptr<Acteur>[]>(autre.capacite)) 
+	Liste(const Liste<T>& autre) : capacite_(autre.capacite_), 
+															nElements_(autre.nElements_), 
+															elements_(make_unique<shared_ptr<T>[]>(autre.capacite_)) 
 	{
-		for (int i : range(autre.nElements))
-			elements[i] = autre.elements[i];
+		for (int i : range(autre.nElements_))
+			elements_[i] = autre.elements_[i];
 	}
 	
-	void operator=(const ListeActeurs& autre)
+	void operator=(const Liste<T>& autre)
 	{
-		capacite = autre.capacite;
-		nElements = autre.nElements;
-		elements = make_unique<shared_ptr<Acteur>[]>(autre.capacite);
-		for (int i : range(autre.nElements))
-			elements[i] = autre.elements[i];
+		capacite_ = autre.capacite_;
+		nElements_ = autre.nElements_;
+		elements_ = make_unique<shared_ptr<T>[]>(autre.capacite_);
+		for (int i : range(autre.nElements_))
+			elements_[i] = autre.elements_[i];
 	}
 	
-	span<std::shared_ptr<Acteur>> enSpan() const;
+	span<shared_ptr<T>> enSpan() const {
+		return span(elements_.get(), nElements_);
+	}
 
-	void ajouterActeur(std::shared_ptr<Acteur> acteur) {
-		if (nElements == capacite) // Devrait pas avoir à le faire car la capacité est lu dans le fichier
-			changeDimension(max(1, capacite * 2));
+	void ajouter(shared_ptr<T> element) {
+		if (nElements_ == capacite_) // Devrait pas avoir à le faire car la capacité est lu dans le fichier
+			changeDimension(max(1, capacite_ * 2));
 
-		elements[nElements++] = acteur;
+		elements_[nElements_++] = element;
 	}
 
 	void changeDimension(int nouvelleCapacite)
 	{
-		unique_ptr<shared_ptr<Acteur>[]> nouvelleListe = make_unique<shared_ptr<Acteur>[]>(nouvelleCapacite);
-		nElements = min(nouvelleCapacite, nElements);
+		unique_ptr<shared_ptr<T>[]> nouvelleListe = make_unique<shared_ptr<T>[]>(nouvelleCapacite);
+		nElements_ = min(nouvelleCapacite, nElements_);
 
-		for (int i : range(nElements))
-			nouvelleListe[i] = elements[i];
+		for (int i : range(nElements_))
+			nouvelleListe[i] = elements_[i];
 
-		elements = move(nouvelleListe);
-		capacite = nouvelleCapacite;
+		elements_ = move(nouvelleListe);
+		capacite_ = nouvelleCapacite;
 	}
 
 private:
-	int capacite = 0, nElements = 0;
-	std::unique_ptr<std::shared_ptr<Acteur>[]> elements; // unique_ptr vers un tableau de Acteur*, chaque Acteur* pointant vers un Film.
+	int capacite_ = 0, nElements_ = 0;
+	unique_ptr<shared_ptr<T>[]> elements_; // unique_ptr vers un tableau de Acteur*, chaque Acteur* pointant vers un Film.
 };
+
+using ListeActeurs = Liste<Acteur>;
 
 struct Film
 {

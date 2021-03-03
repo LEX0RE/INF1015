@@ -25,7 +25,6 @@
 using namespace std;
 using namespace iter;
 using namespace gsl;
-
 #pragma endregion//}
 
 typedef uint8_t UInt8;
@@ -60,14 +59,21 @@ ostream& operator<< (ostream& o, const Acteur& a)
 	return o << "  " << a.nom << ", " << a.anneeNaissance << " " << a.sexe << endl;
 }
 
+Film* ListeFilms::trouverFilm(const function<bool(Film*)>& critere) const {
+	for (Film* film : enSpan())
+		if (critere(film))
+			return film;
+	return nullptr;
+}
+
 // Fonction pour afficher un film avec tous ces acteurs (en utilisant la fonction afficherActeur ci-dessus).
 //[
 ostream& operator<< (ostream& o, const Film& f)
 {
 	o << "Titre: " << f.titre << endl
-					 << "  Réalisateur: " << f.realisateur << "  Année :" << f.anneeSortie << endl
-					 << "  Recette: " << f.recette << "M$" << endl 
-		       << "Acteurs:" << endl;
+		<< "  Réalisateur: " << f.realisateur << "  Année :" << f.anneeSortie << endl
+		<< "  Recette: " << f.recette << "M$" << endl 
+		<< "Acteurs:" << endl;
 	for (const shared_ptr<Acteur> acteur : f.acteurs.enSpan())
 		o << *acteur;
 	return o;
@@ -123,8 +129,6 @@ void ListeFilms::enleverFilm(const Film* film)
 
 // Fonction pour trouver un Acteur par son nom dans une ListeFilms, qui retourne un pointeur vers l'acteur, ou nullptr si l'acteur n'est pas trouvé.  Devrait utiliser span.
 //[
-// Voir la NOTE ci-dessous pourquoi Acteur* n'est pas const.  Noter que c'est valide puisque c'est la struct uniquement qui est const dans le paramètre, et non ce qui est pointé par la struct.
-span<shared_ptr<Acteur>> ListeActeurs::enSpan() const { return span(elements.get(), nElements); }
 
 //NOTE: Doit retourner un Acteur modifiable, sinon on ne peut pas l'utiliser pour modifier l'acteur tel que demandé dans le main, et on ne veut pas faire écrire deux versions aux étudiants dans le TD2.
 shared_ptr<Acteur> ListeFilms::trouverActeur(const string& nomActeur) const
@@ -171,7 +175,7 @@ Film* lireFilm(istream& fichier, ListeFilms& listeFilms)
 
 	for ([[maybe_unused]] int i : range(capacite)) {
 		shared_ptr<Acteur> acteur = lireActeur(fichier, listeFilms);
-		film->acteurs.ajouterActeur(acteur);
+		film->acteurs.ajouter(acteur);
 		//acteur->joueDans.ajouterFilm(film);
 	}
 
@@ -277,21 +281,26 @@ int main()
 	// Affiche la liste des films où Benedict Cumberbatch joue.  Il devrait y avoir Le Hobbit et Le jeu de l'imitation.
 	//afficherFilmographieActeur(listeFilms, "Benedict Cumberbatch");
 	
-	// TODO : Chapitre 7 - 8
-	//   TODO : Film skylien = /* listeFilms[0] ou *listeFilms[0] selon ce qui fait du sens */;
+	// Chapitre 7 - 8 
+	cout << ligneDeSeparation;
 	Film skylien = *listeFilms[0];
-	//Film skylien = listeFilms[0];
-	
-	//   TODO : Changer le titre du film skylien pour "Skylien". 
 	skylien.titre = "Skylien";
-	//   TODO : Changer le premier acteur du film skylien pour le premier acteur de listeFilms[1]. 
 	skylien.acteurs.enSpan()[0] = listeFilms[1]->acteurs.enSpan()[0];
-	//   TODO : Changer le nom du premier acteur de skylien pour son nom complet "Daniel Wroughton Craig". 
 	skylien.acteurs.enSpan()[0]->nom = "Daniel Wroughton Craig";
-	//   TODO : Afficher skylien, listeFilms[0] et listeFilms[1], pour voir que Alien n’a pas été modifié, que skylien a bien l’acteur modifié et que listeFilms[1] a aussi l’acteur modifié puisque les films devraient partager le même acteur.
 	cout << "\nAffichage de skylien :\n\t" << skylien << endl;
 	cout << "Affichage de listeFilms[0] :\n\t" << *listeFilms[0] << endl;
 	cout << "Affichage de listeFilms[1] :\n\t" << *listeFilms[1] << endl;
+
+	// Chapitre 10
+	cout << ligneDeSeparation;
+	cout << "Le film dont la recette est 955M$ est: " << endl;
+	cout << *listeFilms.trouverFilm([](Film* f) { return f->recette == 955; }) << endl;
+
+	// Chapitre 9
+	Liste<string> listeTextes;
+	listeTextes.ajouter(make_shared<string>("allo"));
+	listeTextes.ajouter(make_shared<string>("bonjour"));
+	Liste<string> listeTextes2 = listeTextes;
 
 	// Détruit et enlève le premier film de la liste (Alien).
 	detruireFilm(listeFilms.enSpan()[0]);
