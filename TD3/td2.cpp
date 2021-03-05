@@ -336,6 +336,9 @@ int main()
 	//afficherFilmographieActeur(listeFilms, "N'existe pas"); // Afficher les films d'un acteur qui n'existe pas.
 	listeFilms.trouverFilm([](Film* f) { return f->titre == "Test"; });
 	listeTextes = listeTextes2;
+	listeFilms[0]->acteurs.ajouter(listeFilms[1]->acteurs[0]);
+	ListeActeurs test;
+	test = listeFilms[0]->acteurs;
 
 	// Détruire tout avant de terminer le programme.
 	listeFilms.detruire(true);

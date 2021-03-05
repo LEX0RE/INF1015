@@ -80,7 +80,7 @@ public:
 
 	void ajouter(shared_ptr<T> element) 
 	{
-		if (nElements_ == capacite_) // Devrait pas avoir à le faire car la capacité est lue dans le fichier
+		if (nElements_ == capacite_)
 			changeDimension(max(1, capacite_ * 2));
 
 		elements_[nElements_++] = element;
