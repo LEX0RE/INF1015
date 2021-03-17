@@ -180,45 +180,53 @@ ostream& operator<< (ostream& os, const Acteur& acteur)
 	return os << "  " << acteur.nom << ", " << acteur.anneeNaissance << " " << acteur.sexe << endl;
 }
 
-// Fonction pour afficher un film avec tous ces acteurs (en utilisant la fonction afficherActeur ci-dessus).
-//[
-ostream& operator<< (ostream& os, const Film& film)
+ostream& operator<< (ostream& os, const Item& item)
 {
-	os << "Titre: " << film.titre << endl;
-	os << "  Réalisateur: " << film.realisateur << "  Année :" << film.anneeSortie << endl;
-	os << "  Recette: " << film.recette << "M$" << endl;
-
-	os << "Acteurs:" << endl;
-	for (const shared_ptr<Acteur>& acteur : film.acteurs.enSpan())
-		os << *acteur;
+	item.afficher(os);  // TODO
 	return os;
 }
-//]
+
+void Item::afficher(ostream& os) const {
+	os << "Titre: " << titre << endl;
+	os << "  Année :" << anneeSortie << endl;
+}
+
+void Film::afficher(ostream& os) const {
+	Item::afficher(os);
+	os << "  Réalisateur: " << realisateur << endl;
+	os << "  Recette: " << recette << "M$" << endl;
+	os << "Acteurs:" << endl;
+	for (const shared_ptr<Acteur>& acteur : acteurs.enSpan())
+		os << *acteur;
+}
+
+void Livre::afficher(ostream& os) const {
+	Item::afficher(os);
+	os << "  Auteur: " << auteur << endl;
+	os << "  Vente: " << vente << "M$" << endl;
+	os << "  Nombre de pages: " << page << endl;
+}
+
+void FilmLivre::afficher(ostream& os) const {
+	Film::afficher(os);
+	Livre::afficher(os);
+}
 
 // Pas demandé dans l'énoncé de tout mettre les affichages avec surcharge, mais pourquoi pas.
-ostream& operator<< (ostream& os, const ListeFilms& listeFilms)
+ostream& operator<< (ostream& os, const vector<unique_ptr<Item>>& bibliotheque)
 {
 	static const string ligneDeSeparation = //[
 		"\033[32m────────────────────────────────────────\033[0m\n";
 	os << ligneDeSeparation;
-	for (const Film* film : listeFilms.enSpan()) {
-		os << *film << ligneDeSeparation;
+	for (auto&& i : bibliotheque) {
+		os << *i << ligneDeSeparation;
 	}
 	return os;
 }
 
-Livre* lireLivre(ifstream fichier) {
-	Livre livre;
-	string temp;
-	fichier >> std::quoted(livre.titre);
-	fichier >> std::quoted(temp);
-	livre.anneeSortie = stoi(temp);
-	fichier >> std::quoted(livre.auteur);
-	fichier >> std::quoted(temp);
-	livre.anneeSortie = stoi(temp);
-	fichier >> std::quoted(temp);
-	livre.anneeSortie = stoi(temp);
-	return &livre;
+FilmLivre::FilmLivre(Film* film, Livre* livre) : Film(*film), Livre(*livre) {
+	titre = film->titre;
+	anneeSortie = film->anneeSortie;
 }
 
 int main()
@@ -232,14 +240,38 @@ int main()
 
 	ListeFilms listeFilms = creerListe("films.bin");
 
-	vector<Item*> bibliotheque;
+	vector<unique_ptr<Item>> bibliotheque;
 
 	for (Film* f : listeFilms.enSpan())
-		bibliotheque.push_back(f);
+		bibliotheque.push_back(make_unique<Film>(*f));
 
 	ifstream fichier("livres.txt");
-	//while(!fichier.eof())
-	//	bibliotheque.push_back(lireLivre(fichier));
+	string temp;
+	fichier >> std::quoted(temp);
+	while (!fichier.eof()) {
+		Livre livre;
+		livre.titre = temp;
+		fichier >> livre.anneeSortie;
+		fichier >> std::quoted(livre.auteur);
+		fichier >> livre.vente;
+		fichier >> livre.page;
+		bibliotheque.push_back(make_unique<Livre>(livre));
+		fichier >> std::quoted(temp);
+	}
+
+	Film* hobbitF = nullptr;
+	Livre* hobbitL = nullptr;
+	for (auto&& i : bibliotheque) {
+		if ((*i).titre == "Le Hobbit : La Bataille des Cinq Armées")
+			hobbitF = dynamic_cast<Film*>(i.get());
+		if ((*i).titre == "The Hobbit")
+			hobbitL = dynamic_cast<Livre*>(i.get());
+	}
+
+	bibliotheque.push_back(make_unique<FilmLivre>(FilmLivre(hobbitF, hobbitL)));
+
+
+	cout << bibliotheque << endl;
 
 	// Détruire tout avant de terminer le programme.
 	listeFilms.detruire(true);
