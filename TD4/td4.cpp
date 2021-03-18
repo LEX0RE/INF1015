@@ -187,8 +187,7 @@ ostream& operator<< (ostream& os, const Item& item)
 }
 
 void Item::afficher(ostream& os) const {
-	os << "Titre: " << titre << endl;
-	os << "  Année :" << anneeSortie << endl;
+	os << "Titre: " << titre << "  Année: " << anneeSortie << endl;
 }
 
 void Film::afficher(ostream& os) const {
@@ -203,11 +202,12 @@ void Film::afficher(ostream& os) const {
 void Livre::afficher(ostream& os) const {
 	Item::afficher(os);
 	os << "  Auteur: " << auteur << endl;
-	os << "  Vente: " << vente << "M$" << endl;
-	os << "  Nombre de pages: " << page << endl;
+	os << "  Vendus: " << vente << "M" << "  Pages: " << page << endl;
 }
 
 void FilmLivre::afficher(ostream& os) const {
+	Item::afficher(os);
+	os << "Combo: " << endl;
 	Film::afficher(os);
 	Livre::afficher(os);
 }
