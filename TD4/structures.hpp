@@ -1,5 +1,11 @@
-﻿// Solutionnaire du TD3 INF1015 hiver 2021
-// Par Francois-R.Boyer@PolyMtl.ca
+﻿/**
+* Structure pour la gestion de films et de livres pour le TD4 de INF1015.
+* \file   structures.hpp
+* \author Ioana Daria Danciu et Alexandre Gelinas
+* \date   18 mars 2021
+* Cree le 16 janvier 2021
+*/
+
 #pragma once
 // Structures mémoires pour une collection de films.
 

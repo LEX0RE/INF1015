@@ -1,5 +1,10 @@
-﻿// Solutionnaire du TD3 INF1015 hiver 2021
-// Par Francois-R.Boyer@PolyMtl.ca
+﻿/**
+* Gestion de films et de livres pour le TD4 de INF1015.
+* \file   td4.cpp
+* \author Ioana Daria Danciu et Alexandre Gelinas
+* \date   18 mars 2021
+* Cree le 16 janvier 2021
+*/
 
 #pragma region "Includes"//{
 #define _CRT_SECURE_NO_WARNINGS // On permet d'utiliser les fonctions de copies de chaînes qui sont considérées non sécuritaires.
@@ -182,7 +187,7 @@ ostream& operator<< (ostream& os, const Acteur& acteur)
 
 ostream& operator<< (ostream& os, const Item& item)
 {
-	item.afficher(os);  // TODO
+	item.afficher(os);
 	return os;
 }
 
