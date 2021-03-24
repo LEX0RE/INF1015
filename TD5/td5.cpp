@@ -363,28 +363,45 @@ int main(int argc, char* argv[])
 
 	afficherListeItems(items);
 
-	forward_list<unique_ptr<Item>> listeItems1;
+	forward_list<Item*> listeItems1;
 	reverse(items.begin(), items.end());
 	for (auto&& item : items) {
-		listeItems1.push_front(make_unique<Item>(*(item.get())));
+		listeItems1.push_front(item.get());
 	}
-	afficherListeTemplate<forward_list<unique_ptr<Item>>>(listeItems1);
+	afficherListeTemplate<forward_list<Item*>>(listeItems1);
 	cout << "ListeItems1" << endl;
 
-	forward_list<unique_ptr<Item>> listeItems2;
+	forward_list<Item*> listeItems2;
 	for (auto&& item : listeItems1) {
-		listeItems2.push_front(make_unique<Item>(*(item.get())));
+		listeItems2.push_front(item);
 	}
-	afficherListeTemplate<forward_list<unique_ptr<Item>>>(listeItems2);
+	afficherListeTemplate<forward_list<Item*>>(listeItems2);
 	cout << "ListeItems2" << endl;
 
-	/*
-	forward_list<unique_ptr<Item>> listeItems3;
+	forward_list<Item*> listeItems3;
+	auto iterateur = listeItems3.before_begin();
 	for (auto&& item : listeItems1) {
-		listeItems3.push_front(make_unique<Item>(*(item.get())));
+		iterateur = listeItems3.insert_after(iterateur, item);
 	}
-	afficherListeTemplate<forward_list<unique_ptr<Item>>>(listeItems3);
+	afficherListeTemplate<forward_list<Item*>>(listeItems3);
 	cout << "ListeItems3" << endl;
+
+	int taille = 0; // O(1)
+	for (auto&& i : listeItems1) // O(n) au total
+		taille++; // O(1)
+
+	vector<Item*> vecteurItems4(taille); // O(n)
+	for (auto&& [i, item] : enumerate(listeItems1)) { // O(n)
+		vecteurItems4[taille - 1 - i] = item; // O(1)
+	}
+	// Total : O(n)
+	afficherListeTemplate<vector<Item*>>(vecteurItems4);
+	cout << "vecteurItems4" << endl;
+
+	/*
+	Film film = dynamic_cast<Film&>(*(items[0].get()));
+	for (auto&& acteur : film.acteurs) {
+		cout << acteur << endl;
+	}
 	*/
-	
 }
