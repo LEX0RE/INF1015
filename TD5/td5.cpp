@@ -371,6 +371,8 @@ int main(int argc, char* argv[])
 	afficherListeTemplate<forward_list<Item*>>(listeItems1);
 	cout << "ListeItems1" << endl;
 
+	reverse(items.begin(), items.end());
+
 	forward_list<Item*> listeItems2;
 	for (auto&& item : listeItems1) {
 		listeItems2.push_front(item);
@@ -386,6 +388,7 @@ int main(int argc, char* argv[])
 	afficherListeTemplate<forward_list<Item*>>(listeItems3);
 	cout << "ListeItems3" << endl;
 
+	// TODO : Revoir car i non utilisé
 	int taille = 0; // O(1)
 	for (auto&& i : listeItems1) // O(n) au total
 		taille++; // O(1)
@@ -398,10 +401,9 @@ int main(int argc, char* argv[])
 	afficherListeTemplate<vector<Item*>>(vecteurItems4);
 	cout << "vecteurItems4" << endl;
 
-	/*
+	cout << "\nActeur du premier Film:" << endl;
 	Film film = dynamic_cast<Film&>(*(items[0].get()));
 	for (auto&& acteur : film.acteurs) {
-		cout << acteur << endl;
+		cout << (*acteur) << endl;
 	}
-	*/
 }

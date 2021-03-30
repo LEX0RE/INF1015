@@ -72,6 +72,14 @@ public:
 	shared_ptr<T>& operator[] (int index) { return elements[index]; }
 	span<shared_ptr<T>> enSpan() const { return span(elements.get(), nElements); }
 
+	shared_ptr<T>* begin() {
+		return elements.get();
+	}
+
+	shared_ptr<T>* end() {
+		return &elements[nElements];
+	}
+
 private:
 	int capacite = 0, nElements = 0;
 	unique_ptr<shared_ptr<T>[]> elements;
