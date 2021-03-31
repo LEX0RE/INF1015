@@ -19,6 +19,9 @@
 #include <algorithm>
 #include <sstream>
 #include <forward_list>
+#include <set>
+#include <unordered_map>
+#include <numeric>
 #include "cppitertools/range.hpp"
 #include "cppitertools/enumerate.hpp"
 #include "gsl/span"
@@ -296,6 +299,12 @@ void afficherListeTemplate(T& listeTemplate) {
 	}
 }
 
+struct ItemPlusPetitQue {
+	bool operator()(const Item* item1, const Item* item2) const {
+		return item1->titre < item2->titre;
+	}
+};
+
 #pragma region "Exemples de tests unitaires"//{
 #ifdef TEST
 // Pas demandés dans ce TD mais sert d'exemple.
@@ -369,7 +378,6 @@ int main(int argc, char* argv[])
 		listeItems1.push_front(item.get());
 	}
 	afficherListeTemplate<forward_list<Item*>>(listeItems1);
-	cout << "ListeItems1" << endl;
 
 	reverse(items.begin(), items.end());
 
@@ -378,7 +386,6 @@ int main(int argc, char* argv[])
 		listeItems2.push_front(item);
 	}
 	afficherListeTemplate<forward_list<Item*>>(listeItems2);
-	cout << "ListeItems2" << endl;
 
 	forward_list<Item*> listeItems3;
 	auto iterateur = listeItems3.before_begin();
@@ -386,11 +393,9 @@ int main(int argc, char* argv[])
 		iterateur = listeItems3.insert_after(iterateur, item);
 	}
 	afficherListeTemplate<forward_list<Item*>>(listeItems3);
-	cout << "ListeItems3" << endl;
 
-	// TODO : Revoir car i non utilisé
 	int taille = 0; // O(1)
-	for (auto&& i : listeItems1) // O(n) au total
+	for ([[maybe_unused]]auto&& i : listeItems1) // O(n) au total
 		taille++; // O(1)
 
 	vector<Item*> vecteurItems4(taille); // O(n)
@@ -399,11 +404,39 @@ int main(int argc, char* argv[])
 	}
 	// Total : O(n)
 	afficherListeTemplate<vector<Item*>>(vecteurItems4);
-	cout << "vecteurItems4" << endl;
 
-	cout << "\nActeur du premier Film:" << endl;
+	cout << ligneDeSeparation << endl;
+
+	cout << "Acteur du premier Film:\n" << endl;
 	Film film = dynamic_cast<Film&>(*(items[0].get()));
 	for (auto&& acteur : film.acteurs) {
 		cout << (*acteur) << endl;
 	}
+
+	set<Item*, ItemPlusPetitQue> itemSet;
+	for (auto&& item : items)
+		itemSet.insert(item.get());
+	afficherListeTemplate(itemSet);
+
+	cout << ligneDeSeparation << endl;
+
+	unordered_map<string, unique_ptr<Item>> dictionnaire;
+	for (auto&& item : items)
+		dictionnaire[item->titre] = make_unique<Item>(*(item.get()));
+
+	cout << *(dictionnaire["The Hobbit"].get()) << endl;
+
+	vector<Item*> vecteurFilms;
+	copy_if (listeItems1.begin(), listeItems1.end(), back_inserter(vecteurFilms), [](Item* item){return dynamic_cast<Film*>(item) != nullptr;} );
+
+	afficherListeTemplate(vecteurFilms);
+	cout << ligneDeSeparation << endl;
+
+	cout << "Somme des recettes des films: "
+		   << accumulate(vecteurFilms.begin(), 
+				  vecteurFilms.end(), 
+				  0, 
+				  [](int sum, Item* item) {return sum + dynamic_cast<Film*>(item)->recette;})
+		   << " M$"
+			 << endl;
 }
