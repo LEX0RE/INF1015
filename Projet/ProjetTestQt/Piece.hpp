@@ -6,9 +6,16 @@
 * \date   6 avril 2021
 * Cree le 6 avril 2021
 */
-#include <list>
 
-enum Color{white, black};
+#include <list>
+#pragma warning(push, 0) // Sinon Qt fait des avertissements à /W4.
+#include <QPixmap>
+#include <QGraphicsWidget>
+#pragma pop()
+
+// Image au lien suivant : https://pixabay.com/fr/vectors/d-%C3%A9checs-pi%C3%A8ces-ensemble-symboles-26774/
+
+enum PieceColor{white, black};
 
 struct Position {
 	unsigned int x, y;
@@ -16,56 +23,68 @@ struct Position {
 	bool operator==(Position autre) const;
 };
 
-class Piece {
+class Piece : public QGraphicsLayoutItem, public QGraphicsItem {
 public:
-	Piece(const Color& color, const Position& position);
-	Color getColor() const;
+	Piece(const PieceColor& color, const Position& position, QGraphicsItem* parent = nullptr);
+	void setPicture(const QRect& pictureRect);
 	Position getPosition() const;
-	virtual std::list<Position*> checkMove() = 0;
-	void move(Position position);
+	PieceColor getColor() const;
+	virtual std::list<Position> checkMove() = 0;
+	bool move(Position position);
+	bool validPosition(Position position) const;
+	bool atAlly(Position position) const;
+	bool atEnemy(Position position) const;
+
+	void setGeometry(const QRectF& geom) override;
+	QSizeF sizeHint(Qt::SizeHint which, const QSizeF& constraint = QSizeF()) const override;
+	QRectF boundingRect() const override;
+	virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = nullptr) override;
 protected:
-	Color color_;
+	PieceColor color_;
 	Position position_;
+	QPixmap picture_;
+
+	void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
 };
 
 class King : public Piece {
 public:
-	King(const Color& color, const Position& position);
+	King(const PieceColor& color, const Position& position, QGraphicsItem* parent = nullptr);
 
-	std::list<Position*> checkMove() override;
+	std::list<Position> checkMove() override;
 };
 
 class Queen : public Piece {
 public:
-	Queen(const Color& color, const Position& position);
+	Queen(const PieceColor& color, const Position& position, QGraphicsItem* parent = nullptr);
 
-	std::list<Position*> checkMove() override;
+	std::list<Position> checkMove() override;
 };
 
 class Knight : public Piece {
 public:
-	Knight(const Color& color, const Position& position);
+	Knight(const PieceColor& color, const Position& position, QGraphicsItem* parent = nullptr);
 
-	std::list<Position*> checkMove() override;
+	std::list<Position> checkMove() override;
 };
 
 class Bishop : public Piece {
 public:
-	Bishop(const Color& color, const Position& position);
+	Bishop(const PieceColor& color, const Position& position, QGraphicsItem* parent = nullptr);
 
-	std::list<Position*> checkMove() override;
+	std::list<Position> checkMove() override;
 };
 
 class Rook : public Piece {
 public:
-	Rook(const Color& color, const Position& position);
+	Rook(const PieceColor& color, const Position& position, QGraphicsItem* parent = nullptr);
 
-	std::list<Position*> checkMove() override;
+	std::list<Position> checkMove() override;
 };
 
 class Pawn : public Piece {
 public:
-	Pawn(const Color& color, const Position& position);
+	Pawn(const PieceColor& color, const Position& position, QGraphicsItem* parent = nullptr);
 
-	std::list<Position*> checkMove() override;
+	std::list<Position> checkMove() override;
 };

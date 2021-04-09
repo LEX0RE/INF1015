@@ -115,7 +115,9 @@
     <ClCompile Include="bibliotheque_cours\verification_allocation.cpp" />
     <ClCompile Include="Calc.cpp" />
     <ClCompile Include="CalcWindow.cpp" />
-    <ClCompile Include="ChessWindow.cpp" />
+    <ClCompile Include="Board.cpp" />
+    <ClCompile Include="Chess.cpp" />
+    <ClCompile Include="View.cpp" />
     <ClCompile Include="googletest\src\gtest-all.cc" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Piece.cpp" />
@@ -126,8 +128,9 @@
     <QtMoc Include="CalcWindow.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Chess.hpp" />
-    <QtMoc Include="ChessWindow.hpp" />
+    <ClInclude Include="Board.hpp" />
+    <QtMoc Include="View.hpp" />
+    <QtMoc Include="Chess.hpp" />
     <ClInclude Include="Piece.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

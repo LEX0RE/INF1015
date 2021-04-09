@@ -1,10 +1,9 @@
 //#include "Calc.hpp"
 //#include "CalcWindow.hpp"
-#include "Chess.hpp"
-#include "ChessWindow.hpp"
+//#include "Chess.hpp"
+#include "View.hpp"
 
 #include <QApplication>
-#include <QPalette>
 #include <iostream>
 
 #if __has_include("bibliotheque_cours.hpp")
@@ -38,13 +37,7 @@ int main(int argc, char *argv[])
 	QApplication app(argc, argv);
 	initialiserBibliothequeCours(argc, argv);
 
-	ChessWindow chessWindow;
-	chessWindow.show();
-	King allo(white, Position(1, 1));
-	std::list<Position*> liste = allo.checkMove();
-	std::cout << std::endl;
-	for (auto it : liste) {
-		std::cout << it->x << " : " << it->y << std::endl;
-	}
+	View view;
+	view.show();
 	return app.exec();
 }

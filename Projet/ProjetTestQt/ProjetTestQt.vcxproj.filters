@@ -46,7 +46,13 @@
     <ClCompile Include="Piece.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ChessWindow.cpp">
+    <ClCompile Include="View.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Board.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Chess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -57,15 +63,18 @@
     <QtMoc Include="CalcWindow.hpp">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="ChessWindow.hpp">
+    <QtMoc Include="View.hpp">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Chess.hpp">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Chess.hpp">
+    <ClInclude Include="Piece.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Piece.hpp">
+    <ClInclude Include="Board.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
