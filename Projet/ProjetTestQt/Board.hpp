@@ -25,9 +25,12 @@ public:
 
   void highlight(const Qt::GlobalColor color);
   void downlight();
+  void setPiece(Piece* piece);
+  void removePiece();
 private:
   QGraphicsRectItem* square_;
   Qt::GlobalColor color_;
+  Piece* piece_;
 };
 
 class Board : public QGraphicsGridLayout, public QObject {
@@ -35,15 +38,16 @@ public:
   Board(QGraphicsLayoutItem* parent = nullptr);
   ~Board() override;
 
-  static void toggleHighlightCase(const std::list<Position>& caseList);
-  void movePiece(Piece* piece, Position position);
+  static void selectPiece(Piece* selected);
+  void movePiece(Position position);
 
   static std::map<std::string, Piece*>& getPieceMap();
 private:
   static std::map<std::string, Case*> caseDict_;
   static std::map<std::string, Piece*> pieceDict_;
   static std::list<Case*> highlighted_;
-  //Piece* selected_;
+  static Piece* selected_;
   void setGrid();
   void setPiece();
+  void setPieceRandom();
 };

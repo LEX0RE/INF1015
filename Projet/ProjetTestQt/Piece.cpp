@@ -10,7 +10,6 @@
 #include <QPainter>
 #pragma pop()
 
-#include <cppitertools/range.hpp>
 #include "Piece.hpp"
 #include "Board.hpp"
 
@@ -23,7 +22,10 @@ Piece::Piece(const PieceColor& color,
 						 QGraphicsItem* parent) : QGraphicsLayoutItem(), 
 																			QGraphicsItem(parent),
 																			color_(color),
-																			position_(position) {}
+																			position_(position), 
+																			moved_(false) {
+	possibility_ = {};
+}
 
 void Piece::setPicture(const QRect& pictureRect) {
 	QImage image("Resources/pieces.png");
@@ -46,7 +48,7 @@ void Piece::setGeometry(const QRectF& geom)
 
 QSizeF Piece::sizeHint(Qt::SizeHint which, const QSizeF& constraint) const
 {
-	return QSizeF(140, 140);
+	return QSizeF(100, 100);
 }
 
 QRectF Piece::boundingRect() const
@@ -60,8 +62,11 @@ void Piece::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWi
 	painter->drawPixmap(QRect(0, 0, 140, 140), picture_);
 }
 
+std::list<Position> Piece::getPossibility() const { return possibility_; }
+
 bool Piece::move(Position position) {
-	for (auto it : checkMove()) {
+	checkPossibility();
+	for (auto it : possibility_) {
 		if (it == position) {
 			position_ = position;
 			return true;
@@ -70,12 +75,31 @@ bool Piece::move(Position position) {
 	return false;
 }
 
-bool Piece::validPosition(Position position) const {
-	if (position.x != 0 || position.y != 0) {
-		if (position.x < 8 && position.y < 8)
-			return true;
+AddMoveState Piece::addMove(Position position) {
+	if (position != position_) {
+		if (position.x < 8 && position.y < 8) {
+			if (atAlly(position))
+				return stop;
+			possibility_.push_back(position);
+			if (atEnemy(position))
+				return stop;
+			return add;
+		}
 	}
-	return false;
+	return stop;
+}
+
+void Piece::addDirection(int iterateX, int iterateY, iter::impl::Range<int> range) {
+	bool valid = true;
+	Position test;
+
+	for (int i : range) {
+		if (valid) {
+			Position test = Position(position_.x + (i * iterateX), position_.y + (i * iterateY));
+			if (addMove(test) == stop)
+				valid = false;
+		}
+	}
 }
 
 bool Piece::atAlly(Position position) const {
@@ -98,7 +122,7 @@ void Piece::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
 	update();
 	QGraphicsItem::mousePressEvent(event);
-	Board::toggleHighlightCase(checkMove());
+	Board::selectPiece(this);
 }
 
 King::King(const PieceColor& color, const Position& position, QGraphicsItem* parent) : Piece(color, position, parent)
@@ -109,15 +133,15 @@ King::King(const PieceColor& color, const Position& position, QGraphicsItem* par
 		setPicture(QRect(-13, 349, 140, 140));
 }
 
-std::list<Position> King::checkMove() {
+void King::checkPossibility() {
+	possibility_.clear();
 	std::list<Position> possibility;
 	for (int x : iter::range(-1, 2)) {
 		for (int y : iter::range(-1, 2)) {
-			if(validPosition(Position(position_.x + x, position_.y + y)) == true)
-				possibility.push_back(Position(position_.x + x, position_.y + y));
+			Position test(position_.x + x, position_.y + y);
+			addMove(test);
 		}
 	}
-	return possibility;
 }
 
 Queen::Queen(const PieceColor& color, const Position& position, QGraphicsItem* parent) : Piece(color, position, parent) {
@@ -127,10 +151,16 @@ Queen::Queen(const PieceColor& color, const Position& position, QGraphicsItem* p
 		setPicture(QRect(223, 350, 140, 140));
 }
 
-std::list<Position> Queen::checkMove() {
-	std::list<Position> possibility;
-	
-	return possibility;
+void Queen::checkPossibility() {
+	possibility_.clear();
+	addDirection(1, 1, iter::range(1, 8));
+	addDirection(-1, 1, iter::range(1, 8));
+	addDirection(1, -1, iter::range(1, 8));
+	addDirection(-1, -1, iter::range(1, 8));
+	addDirection(1, 0, iter::range(1, 8));
+	addDirection(-1, 0, iter::range(1, 8));
+	addDirection(0, 1, iter::range(1, 8));
+	addDirection(0, -1, iter::range(1, 8));
 }
 
 Knight::Knight(const PieceColor& color, const Position& position, QGraphicsItem* parent) : Piece(color, position, parent) {
@@ -140,9 +170,17 @@ Knight::Knight(const PieceColor& color, const Position& position, QGraphicsItem*
 		setPicture(QRect(932, 355, 140, 140));
 }
 
-std::list<Position> Knight::checkMove() {
+void Knight::checkPossibility() {
+	possibility_.clear();
 	std::list<Position> possibility;
-	return possibility;
+	for (int x : iter::range(-2, 3)) {
+		for (int y : iter::range(-2, 3)) {
+			if ((x != 0) && (y != 0) && (x != y) && (-x != y)) {
+				Position test(position_.x + x, position_.y + y);
+				addMove(test);
+			}
+		}
+	}
 }
 
 Bishop::Bishop(const PieceColor& color, const Position& position, QGraphicsItem* parent) : Piece(color, position, parent) {
@@ -152,46 +190,13 @@ Bishop::Bishop(const PieceColor& color, const Position& position, QGraphicsItem*
 		setPicture(QRect(697, 349, 140, 140));
 }
 
-std::list<Position> Bishop::checkMove() {
-	std::list<Position> possibility;
-	Position test(0, 0);
-	return possibility;
+void Bishop::checkPossibility() {
+	possibility_.clear();
+	addDirection(1, 1, iter::range(1, 8));
+	addDirection(-1, 1, iter::range(1, 8));
+	addDirection(1, -1, iter::range(1, 8));
+	addDirection(-1, -1, iter::range(1, 8));
 }
-
-/*
-	//North west
-	while () {
-		test.x -= 1;
-		test.y += 1;
-		x = position_.x - 1;
-		y = position_.y + 1;
-		if (x && y < 8)
-			if (!grid[x][y])
-			possibility.push_back(new Position({x, y}));
-		else:
-			enemyPiecePosition.push_back(new Position({position_.x, position_.y}))
-		}
-	}
-
-	//North east
-	while () {
-		possibility.push_back(new Position({}));
-	}
-
-	//South west
-	while () {
-		possibility.push_back(new Position({}));
-	}
-
-	//South east
-	while () {
-		possibility.push_back(new Position({}));
-	}
-
-	return possibility;
-}
-*/
-
 
 Rook::Rook(const PieceColor& color, const Position& position, QGraphicsItem* parent) : Piece(color, position, parent) {
 	if (color == black)
@@ -200,75 +205,12 @@ Rook::Rook(const PieceColor& color, const Position& position, QGraphicsItem* par
 		setPicture(QRect(460, 355, 140, 140));
 }
 
-std::list<Position> Rook::checkMove() {
-	std::list<Position> possibility;
-	bool invalid = false;
-	Position test;
-
-	for (int x : iter::range(-1, -8, -1)) {
-		if (invalid == false) {
-			test = Position(position_.x + x, position_.y);
-
-			if (validPosition(test) == true) {
-				if (atAlly(test))
-					invalid = true;
-				else {
-					if (atEnemy(test))
-						invalid = true;
-					possibility.push_back(test);
-				}
-			}
-		}
-	}
-	invalid = false;
-	for (int x : iter::range(1, 8)) {
-		if (invalid == false) {
-			test = Position(position_.x + x, position_.y);
-
-			if (validPosition(test) == true) {
-				if (atAlly(test))
-					invalid = true;
-				else {
-					if (atEnemy(test))
-						invalid = true;
-					possibility.push_back(test);
-				}
-			}
-		}
-	}
-	invalid = false;
-	for (int y : iter::range(-1, -8, -1)) {
-		if (invalid == false) {
-			test = Position(position_.x, position_.y + y);
-
-			if (validPosition(test) == true) {
-				if (atAlly(test))
-					invalid = true;
-				else {
-					if (atEnemy(test))
-						invalid = true;
-					possibility.push_back(test);
-				}
-			}
-		}
-	}
-	invalid = false;
-	for (int y : iter::range(1, 8)) {
-		if (invalid == false) {
-			test = Position(position_.x, position_.y + y);
-
-			if (validPosition(test) == true) {
-				if (atAlly(test))
-					invalid = true;
-				else {
-					if (atEnemy(test))
-						invalid = true;
-					possibility.push_back(test);
-				}
-			}
-		}
-	}
-	return possibility;
+void Rook::checkPossibility() {
+	possibility_.clear();
+	addDirection(1, 0, iter::range(1, 8));
+	addDirection(-1, 0, iter::range(1, 8));
+	addDirection(0, 1, iter::range(1, 8));
+	addDirection(0, -1, iter::range(1, 8));
 }
 
 Pawn::Pawn(const PieceColor& color, const Position& position, QGraphicsItem* parent) : Piece(color, position, parent) {
@@ -278,34 +220,34 @@ Pawn::Pawn(const PieceColor& color, const Position& position, QGraphicsItem* par
 		setPicture(QRect(1170, 355, 140, 140));
 }
 
-std::list<Position> Pawn::checkMove() { // REVOIR SI PIECE LORSQUE 2 COUPS
-	std::list<Position> possibility;
+void Pawn::checkPossibility() {
+	possibility_.clear();
+	Position test;
 	char direction = 1;
-	if (color_ == white) {
+	int maxMove = 1;
+	bool valid = true;
+
+	if (color_ == white)
 		direction = -1;
-	}
-	if (color_ == black && position_.y == 1) {
-		if (validPosition(Position(position_.x, position_.y + direction * 2)) == true)
-			possibility.push_back(Position(position_.x, position_.y + direction * 2));
-	}
-	else if (color_ == white && position_.y == 6) {
-		if (validPosition(Position(position_.x, position_.y + direction * 2)) == true)
-			possibility.push_back(Position(position_.x, position_.y + direction * 2));
-	}
-	if (validPosition(Position(position_.x, position_.y + direction)) == true)
-		possibility.push_back(Position(position_.x, position_.y + direction));
-	for (int x : range(-1, 2, 2)) {
-		if (x != 0 || (position_.y + direction) != 0) {
-			if (position_.x + x < 8 && position_.y + direction < 8) {
-				for (auto& [key, value] : Board::getPieceMap()) {
-					if (value->getPosition() == Position(position_.x + x, position_.y + direction)) {
-						if (value->getColor() != color_)
-							possibility.push_back(Position(position_.x, position_.y + direction));
-					}
-				}
+	if (moved_ == false)
+		maxMove = 2;
+
+	for (int i : iter::range(1, 1 + maxMove)) {
+		if (valid) {
+			Position test = Position(position_.x, position_.y + (i * direction));
+			if (atEnemy(test) == false) {
+				if (addMove(test) == stop)
+					valid = false;
 			}
+			else
+				valid = false;
 		}
 	}
-	return possibility;
+	test = Position(position_.x - 1, position_.y + direction);
+	if (atEnemy(test))
+		addMove(test);
+	test.x += 2;
+	if (atEnemy(test))
+		addMove(test);
 }
 

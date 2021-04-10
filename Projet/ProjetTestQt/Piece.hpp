@@ -12,10 +12,13 @@
 #include <QPixmap>
 #include <QGraphicsWidget>
 #pragma pop()
+#include <cppitertools/range.hpp>
 
 // Image au lien suivant : https://pixabay.com/fr/vectors/d-%C3%A9checs-pi%C3%A8ces-ensemble-symboles-26774/
 
 enum PieceColor{white, black};
+
+enum AddMoveState{stop, add};
 
 struct Position {
 	unsigned int x, y;
@@ -29,9 +32,11 @@ public:
 	void setPicture(const QRect& pictureRect);
 	Position getPosition() const;
 	PieceColor getColor() const;
-	virtual std::list<Position> checkMove() = 0;
+	virtual void checkPossibility() = 0;
+	std::list<Position> getPossibility() const;
+	AddMoveState addMove(Position position);
+	void addDirection(int iterateX, int iterateY, iter::impl::Range<int> range);
 	bool move(Position position);
-	bool validPosition(Position position) const;
 	bool atAlly(Position position) const;
 	bool atEnemy(Position position) const;
 
@@ -43,6 +48,8 @@ protected:
 	PieceColor color_;
 	Position position_;
 	QPixmap picture_;
+	std::list<Position> possibility_;
+	bool moved_;
 
 	void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
 };
@@ -51,40 +58,40 @@ class King : public Piece {
 public:
 	King(const PieceColor& color, const Position& position, QGraphicsItem* parent = nullptr);
 
-	std::list<Position> checkMove() override;
+	void checkPossibility() override;
 };
 
 class Queen : public Piece {
 public:
 	Queen(const PieceColor& color, const Position& position, QGraphicsItem* parent = nullptr);
 
-	std::list<Position> checkMove() override;
+	void checkPossibility() override;
 };
 
 class Knight : public Piece {
 public:
 	Knight(const PieceColor& color, const Position& position, QGraphicsItem* parent = nullptr);
 
-	std::list<Position> checkMove() override;
+	void checkPossibility() override;
 };
 
 class Bishop : public Piece {
 public:
 	Bishop(const PieceColor& color, const Position& position, QGraphicsItem* parent = nullptr);
 
-	std::list<Position> checkMove() override;
+	void checkPossibility() override;
 };
 
 class Rook : public Piece {
 public:
 	Rook(const PieceColor& color, const Position& position, QGraphicsItem* parent = nullptr);
 
-	std::list<Position> checkMove() override;
+	void checkPossibility() override;
 };
 
 class Pawn : public Piece {
 public:
 	Pawn(const PieceColor& color, const Position& position, QGraphicsItem* parent = nullptr);
 
-	std::list<Position> checkMove() override;
+	void checkPossibility() override;
 };
