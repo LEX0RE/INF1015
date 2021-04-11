@@ -193,10 +193,6 @@ void Board::setGrid() {
 	}
 }
 
-void Board::addPiece(Piece* piece, Position position) {
-
-}
-
 void Board::setPiece() {
 	std::string tag = "";
 	Piece* piece = nullptr;

@@ -48,7 +48,6 @@ public:
 
   static void selectPiece(Piece* selected);
   void movePiece(Position position);
-  void addPiece(Piece* piece, Position position);
 
   static std::map<std::string, Piece*>& getPieceMap();
 private:
