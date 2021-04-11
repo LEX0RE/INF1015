@@ -29,8 +29,11 @@ struct Position {
 class Piece : public QGraphicsLayoutItem, public QGraphicsItem {
 public:
 	Piece(const PieceColor& color, const Position& position, QGraphicsItem* parent = nullptr);
+	void setName(const std::string name);
+	std::string getName() const;
 	void setPicture(const QRect& pictureRect);
 	Position getPosition() const;
+	void setPosition(const Position position);
 	PieceColor getColor() const;
 	virtual void checkPossibility() = 0;
 	std::list<Position> getPossibility() const;
@@ -44,14 +47,15 @@ public:
 	QSizeF sizeHint(Qt::SizeHint which, const QSizeF& constraint = QSizeF()) const override;
 	QRectF boundingRect() const override;
 	virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = nullptr) override;
+
+	void click();
 protected:
 	PieceColor color_;
 	Position position_;
 	QPixmap picture_;
 	std::list<Position> possibility_;
 	bool moved_;
-
-	void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
+	std::string name_;
 };
 
 class King : public Piece {

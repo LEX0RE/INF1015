@@ -20,26 +20,35 @@
 
 struct Case : public QGraphicsWidget {
 public:
-  Case(const Qt::GlobalColor color);
+  Case(const Qt::GlobalColor color, Position position, std::string name);
   ~Case() override;
+  std::string getName() const;
 
   void highlight(const Qt::GlobalColor color);
   void downlight();
   void setPiece(Piece* piece);
   void removePiece();
+  Piece* getPiece() const;
+  bool havePiece() const;
+protected:
+  void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
 private:
   QGraphicsRectItem* square_;
   Qt::GlobalColor color_;
   Piece* piece_;
+  bool highlighted_;
+  Position position_;
+  std::string name_;
 };
 
-class Board : public QGraphicsGridLayout, public QObject {
+class Board : public QGraphicsGridLayout{
 public:
   Board(QGraphicsLayoutItem* parent = nullptr);
   ~Board() override;
 
   static void selectPiece(Piece* selected);
   void movePiece(Position position);
+  void addPiece(Piece* piece, Position position);
 
   static std::map<std::string, Piece*>& getPieceMap();
 private:

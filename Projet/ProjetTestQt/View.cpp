@@ -11,7 +11,7 @@
 
 View::View()
 {
-  //setStyleSheet("background-color:black;");
+  setStyleSheet("background-color:black;");
   setWindowTitle("Chess");
   setScene(new Chess());
   QGraphicsView::fitInView(scene()->sceneRect(), Qt::KeepAspectRatio);
