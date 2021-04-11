@@ -93,11 +93,12 @@ Board::Board(QGraphicsLayoutItem* parent) : QGraphicsGridLayout(parent){
 }
 
 Board::~Board() {
-	for (auto& [key, value] : pieceDict_) {
-		removeItem(value);
-		delete value;
-	}
 	for (auto& [key, value] : caseDict_) {
+		if (value->getPiece() != nullptr) {
+			pieceDict_.erase(pieceDict_.find(value->getPiece()->getName()));
+			delete value->getPiece();
+			value->removePiece();
+		}
 		removeItem(value);
 		delete value;
 	}
