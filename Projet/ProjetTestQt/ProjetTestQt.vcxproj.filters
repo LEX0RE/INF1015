@@ -34,15 +34,6 @@
     <ClCompile Include="googletest\src\gtest-all.cc">
       <Filter>Sources Bibliotheques</Filter>
     </ClCompile>
-    <ClCompile Include="CalcWindow.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Calc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TestCalc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Piece.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -55,14 +46,11 @@
     <ClCompile Include="Chess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TestBoard.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="Calc.hpp">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="CalcWindow.hpp">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="View.hpp">
       <Filter>Header Files</Filter>
     </QtMoc>

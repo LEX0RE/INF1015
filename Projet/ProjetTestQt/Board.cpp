@@ -1,12 +1,10 @@
 /**
-* Gestion d'un jeu d'échec
-* \file   chess.cpp
+* Gestion d'une planche du jeu d'échec
+* \file   Board.cpp
 * \author Ioana Daria Danciu et Alexandre Gelinas
-* \date   6 avril 2021
+* \date   11 avril 2021
 * Cree le 6 avril 2021
 */
-
-// TODO : En-tête, Revoir l'update des possibilités et rechecker ce qu'il faut avoir (checker pour for)
 
 #pragma warning(push, 0) // Sinon Qt fait des avertissements à /W4.
 #include <QGraphicsRectItem>
@@ -20,16 +18,15 @@
 #include <cppitertools/range.hpp>
 #include <stdlib.h>
 #include <time.h>
+#include <Algorithm>
 #include "Board.hpp"
 #include "Chess.hpp"
 
-Case::Case(const Qt::GlobalColor color, 
-					 Position position, 
-					 std::string name) : color_(color), 
-															 piece_(nullptr), 
-															 highlighted_(false), 
-															 position_(position),
-															 name_(name)
+Square::Square(const Qt::GlobalColor color,
+					     Position position) : color_(color), 
+															      piece_(nullptr), 
+																	  highlighted_(false), 
+																		position_(position)
 {
 	QGraphicsWidget::setGeometry(0, 0, CASE_SIZE, CASE_SIZE);
 	square_ = new QGraphicsRectItem();
@@ -38,30 +35,28 @@ Case::Case(const Qt::GlobalColor color,
 	square_->setParentItem(this);
 }
 
-Case::~Case() {
-	delete square_;
-}
+Position Square::getPosition() const { return position_; }
 
-void Case::setPiece(Piece* piece) {
+void Square::setPiece(Piece* piece) {
 	piece_ = piece;
 	piece_->setParentItem(this);
 }
 
-void Case::removePiece() {
+void Square::removePiece() {
 	piece_ = nullptr;
 }
 
-void Case::highlight(const Qt::GlobalColor color) {
+void Square::highlight(const Qt::GlobalColor color) {
 	highlighted_ = true;
 	square_->setBrush(color);
 }
 
-void Case::downlight() {
+void Square::downlight() {
 	highlighted_ = false;
 	square_->setBrush(color_);
 }
 
-void Case::mousePressEvent(QGraphicsSceneMouseEvent* event) {
+void Square::mousePressEvent(QGraphicsSceneMouseEvent* event) {
 	update();
 	if (highlighted_ == true) {
 		Board* parent = dynamic_cast<Board*>(parentLayoutItem());
@@ -73,27 +68,26 @@ void Case::mousePressEvent(QGraphicsSceneMouseEvent* event) {
 	QGraphicsWidget::mousePressEvent(event);
 }
 
-bool Case::havePiece() const {
-	return piece_;
-}
+bool Square::havePiece() const { return (piece_ != nullptr); }
 
-std::string Case::getName() const { return name_; }
-
-Piece* Case::getPiece() const { return piece_; }
+Piece* Square::getPiece() const { return piece_; }
 
 Board::Board(QGraphicsLayoutItem* parent) : QGraphicsGridLayout(parent){
+	squareDict_ = {};
+	pieceDict_ = {};
+	highlighted_ = {};
+	selected_ = nullptr;
 	srand(time(NULL));
 	QRectF rect(0, 0, CASE_SIZE, CASE_SIZE);
 	setGeometry(rect);
 	setHorizontalSpacing(1);
 	setVerticalSpacing(1);
 	setGrid();
-	setPiece();
 	highlighted_ = {};
 }
 
 Board::~Board() {
-	for (auto& [key, value] : caseDict_) {
+	for (auto& [key, value] : squareDict_) {
 		if (value->getPiece() != nullptr) {
 			pieceDict_.erase(pieceDict_.find(value->getPiece()->getName()));
 			delete value->getPiece();
@@ -103,14 +97,9 @@ Board::~Board() {
 		delete value;
 	}
 	pieceDict_.clear();
-	caseDict_.clear();
+	squareDict_.clear();
 	invalidate();
 }
-
-std::map<std::string, Case*> Board::caseDict_ = {};
-std::map<std::string, Piece*> Board::pieceDict_ = {};
-std::list<Case*> Board::highlighted_ = {};
-Piece* Board::selected_ = nullptr;
 
 std::map<std::string, Piece*>& Board::getPieceMap() { return pieceDict_; }
 
@@ -123,15 +112,10 @@ void Board::selectPiece(Piece* selected) {
 	}
 	if (selected_ != selected) {
 		selected_ = selected;
-		std::string tag = "";
-		selected_->checkPossibility();
 		for (Position it : selected->getPossibility()) {
-			tag = "";
-			tag += (char)('a' + it.x);
-			tag += (char)('8' - it.y);
-			if (caseDict_.find(tag) != caseDict_.end()) {
-				highlighted_.push_back(caseDict_[tag]);
-				caseDict_[tag]->highlight(Qt::green);
+			if (squareDict_.find(it) != squareDict_.end()) {
+				highlighted_.push_back(squareDict_[it]);
+				squareDict_[it]->highlight(Qt::green);
 			}
 		}
 		if (highlighted_.size() == 0)
@@ -142,18 +126,18 @@ void Board::selectPiece(Piece* selected) {
 	}
 }
 
-void Board::movePiece(Position position) {
-	std::string tag = std::string() + (char)('a' + selected_->getPosition().x) + (char)('8' - selected_->getPosition().y);
-	Case* lastCase = caseDict_[tag];
-	Piece* pieceEaten;
+bool Board::movePiece(Position position) {
+	Position lastPosition = selected_->getPosition(), newPosition = {};
+	Square* lastCase = squareDict_[lastPosition];
+	Piece* pieceEaten = nullptr;
 	if (selected_->move(position)) {
 		QString mouvement = "";
-		caseDict_[tag]->removePiece();
-		tag = std::string() + (char)('a' + selected_->getPosition().x) + (char)('8' - selected_->getPosition().y);
-		pieceEaten = caseDict_[tag]->getPiece();
-		if (selected_->getName()[2] != 'P')
-			mouvement += selected_->getName()[2];
-		mouvement += QString(lastCase->getName().c_str());
+		squareDict_[lastPosition]->removePiece();
+		newPosition = selected_->getPosition();
+		pieceEaten = squareDict_[newPosition]->getPiece();
+		if (selected_->getName()[1] != 'P')
+			mouvement += selected_->getName()[1];
+		mouvement += lastPosition.name().c_str();
 		if (pieceEaten != nullptr) {
 			pieceDict_.erase(pieceDict_.find(pieceEaten->getName()));
 			delete pieceEaten;
@@ -161,85 +145,153 @@ void Board::movePiece(Position position) {
 		}
 		else
 			mouvement += "-";
-		caseDict_[tag]->setPiece(selected_);
-		mouvement += QString(caseDict_[tag]->getName().c_str());
+		squareDict_[newPosition]->setPiece(selected_);
+		mouvement += newPosition.name().c_str();
 		lastCase->update();
 		while (highlighted_.size()) {
 			highlighted_.front()->downlight();
 			highlighted_.pop_front();
 		}
-		Chess::addHistoryMove(mouvement);
+		if(parentLayoutItem())
+			Chess::addHistoryMove(mouvement);
 		selected_ = nullptr;
+		for (auto& [key, value] : pieceDict_)
+			value->clearPossibility();
+		return true;
 	}
+	else
+		return false;
 }
 
 void Board::setGrid() {
-	std::string tag = "";
+	Position position = {};
 	char rowTag = 0, columnTag = 0;
-	for (int y = 0; y < 8; ++y) {
-		for (int x = 0; x < 8; ++x) {
-			tag = "";
-			tag += (char)('a' + x);
-			tag += (char)('8' - y);
-			Case* square;
+	Square* square = nullptr;
+	for (unsigned int y : iter::range(8)) {
+		for (unsigned int x: iter::range(8)) {
+			position = { (unsigned char)('a' + x), (unsigned char)('8' - y) };
 			if ((y + x) % 2)
-				square = new Case(Qt::blue, Position(x, y), tag);
+				square = new Square(Qt::blue, position);
 			else
-				square = new Case(Qt::cyan, Position(x, y), tag);
+				square = new Square(Qt::cyan, position);
 			square->QGraphicsWidget::setMinimumHeight(CASE_SIZE);
 			square->QGraphicsWidget::setMinimumWidth(CASE_SIZE);
 			addItem(square, y, x);
-			caseDict_[tag] = square;
+			squareDict_[position] = square;
 		}
 	}
 }
 
-void Board::setPiece() {
-	std::string tag = "";
+bool Board::setGame(std::list<std::string> specificationPiece) {
+	PieceColor color = white;
+	bool valid = true;
+	Piece* temporary = nullptr;
+	Position position = Position('a', '1');
+	std::string name = "";
+
+	for (auto piece : specificationPiece) {
+		if (piece[0] == 'W')
+			color = white;
+		else
+			color = black;
+		position = Position(piece[2], piece[3]);
+		if (squareDict_[position]->havePiece() == false) {
+			switch (piece[1]) {
+			case 'K':
+				temporary = new King(color, position, squareDict_[position]);
+				name = temporary->getName();
+				break;
+			case 'Q':
+				temporary = new Queen(color, position, squareDict_[position]);
+				name = temporary->getName();
+				break;
+			case 'N':
+				temporary = new Knight(color, position, squareDict_[position]);
+				name = temporary->getName();
+				break;
+			case 'B':
+				temporary = new Bishop(color, position, squareDict_[position]);
+				name = temporary->getName();
+				break;
+			case 'P':
+				if (position.y == '8' || position.y == '1')
+					valid = false;
+				else {
+					temporary = new Pawn(color, position, squareDict_[position]);
+					name = temporary->getName();
+				}
+				break;
+			case 'R':
+				temporary = new Rook(color, position, squareDict_[position]);
+				name = temporary->getName();
+				break;
+			}
+			if (valid == true) {
+				pieceDict_[name] = temporary;
+				squareDict_[position]->setPiece(temporary);
+			}
+		}
+		else
+			valid = false;
+		temporary = nullptr;
+	}
+	if ((pieceDict_.find("WK2") != pieceDict_.end()) || (pieceDict_.find("BK2") != pieceDict_.end()))
+		valid = false;
+
+	if (valid == false) {
+		for (auto& [key, value] : squareDict_) {
+			if (value->getPiece() != nullptr) {
+				pieceDict_.erase(pieceDict_.find(value->getPiece()->getName()));
+				delete value->getPiece();
+				value->removePiece();
+			}
+		}
+		pieceDict_.clear();
+		return false;
+	}
+	return true;
+}
+
+void Board::setNewGame() {
 	Piece* piece = nullptr;
 	PieceColor color = black;
-	for (int y : iter::range(8)){
-		for (int x : iter::range(8)) {
-			tag = "";
-			if (color == white)
-				tag += "W ";
-			else
-				tag += "B ";
-			if (y == 0 || y == 7) {
-				switch (x) {
-				case 0: case 7:
-					tag += "R1";
-					piece = new Rook(color, Position(x, y));
-					break;
-				case 1: case 6:
-					tag += "N1";
-					piece = new Knight(color, Position(x, y));
-					break;
-				case 2: case 5:
-					tag += "B1";
-					piece = new Bishop(color, Position(x, y));
-					break;
-				case 3:
-					tag += "Q";
-					piece = new Queen(color, Position(x, y));
-					break;
-				case 4:
-					tag += "K";
-					piece = new King(color, Position(x, y));
-					break;
+	Position position = {};
+	std::string name = "";
+	for (unsigned int y : iter::range(8)) {
+		for (unsigned int x : iter::range(8)) {
+			if (y <= 1 || y >= 6) {
+				position = { (unsigned char)('a' + x), (unsigned char)('8' - y) };
+				if (y == 0 || y == 7) {
+					piece = nullptr;
+					switch (x) {
+					case 0: case 7:
+						piece = new Rook(color, position, squareDict_[position]);
+						name = piece->getName();
+						break;
+					case 1: case 6:
+						piece = new Knight(color, position, squareDict_[position]);
+						name = piece->getName();
+						break;
+					case 2: case 5:
+						piece = new Bishop(color, position, squareDict_[position]);
+						name = piece->getName();
+						break;
+					case 3:
+						piece = new Queen(color, position, squareDict_[position]);
+						name = piece->getName();
+						break;
+					case 4:
+						piece = new King(color, position, squareDict_[position]);
+						name = piece->getName();
+						break;
+					}
 				}
-			}
-			else if (y == 1 || y == 6) {
-				tag += "P1";
-				piece = new Pawn(color, Position(x, y));
-			}
-			if (y <= 1 || y == 6 || y == 7) {
-				caseDict_[std::string() + (char)('a' + x) + (char)('8' - y)]->setPiece(piece);
-				while (pieceDict_.find(tag) != pieceDict_.end()) {
-					tag[3] = tag[3] + 1;
+				else {
+					piece = new Pawn(color, position, squareDict_[position]);
+					name = piece->getName();
 				}
-				pieceDict_[tag] = piece;
-				piece->setName(tag);
+				pieceDict_[name] = piece;
+				squareDict_[position]->setPiece(piece);
 				if (y == 1 && x == 7) {
 					x = 7;
 					y = 5;
@@ -247,58 +299,5 @@ void Board::setPiece() {
 				}
 			}
 		}
-	}
-}
-
-void Board::setPieceRandom() {
-	std::string tag = "";
-	Piece* piece = nullptr;
-	PieceColor color = black;
-	for (int i : iter::range(32)) {
-		tag = "";
-		if (color == white)
-			tag += "W ";
-		else
-			tag += "B ";
-		Position position;
-		position.x = rand() % 8;
-		position.y = rand() % 8;
-		while (caseDict_[std::string() + (char)('a' + position.x) + (char)('8' - position.y)]->havePiece()) {
-			position.x = rand() % 8;
-			position.y = rand() % 8;
-		}
-		switch (i % 17) {
-		case 0: case 1:
-			piece = new Rook(color, position);
-			tag += "R1";
-			break;
-		case 2: case 3:
-			piece = new Knight(color, position);
-			tag += "N1";
-			break;
-		case 4: case 5:
-			piece = new Bishop(color, position);
-			tag += "B1";
-			break;
-		case 6:
-			piece = new Queen(color, position);
-			tag += "Q";
-			break;
-		case 7:
-			piece = new King(color, position);
-			tag += "K";
-			break;
-		default:
-			piece = new Pawn(color, position);
-			tag += "P1";
-			break;
-		}
-		caseDict_[std::string() + (char)('a' + position.x) + (char)('8' - position.y)]->setPiece(piece);
-		while (pieceDict_.find(tag) != pieceDict_.end())
-			tag[3] = tag[3] + 1;
-		pieceDict_[tag] = piece;
-		piece->setName(tag);
-		if (i > 16)
-			color = white;
 	}
 }

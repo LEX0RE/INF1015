@@ -1,9 +1,9 @@
 #pragma once
 /**
-* Gestion d'un jeu d'échec
-* \file   chess.hpp
+* Déclaration pour la planche du jeu d'échec
+* \file   Board.hpp
 * \author Ioana Daria Danciu et Alexandre Gelinas
-* \date   6 avril 2021
+* \date   11 avril 2021
 * Cree le 6 avril 2021
 */
 
@@ -18,16 +18,16 @@
 #include <map>
 #include "Piece.hpp"
 
-struct Case : public QGraphicsWidget {
+struct Square : public QGraphicsWidget {
 public:
-  Case(const Qt::GlobalColor color, Position position, std::string name);
-  ~Case() override;
-  std::string getName() const;
+  Square(const Qt::GlobalColor color, const Position position);
+  ~Square() override = default;
 
   void highlight(const Qt::GlobalColor color);
   void downlight();
   void setPiece(Piece* piece);
   void removePiece();
+  Position getPosition() const;
   Piece* getPiece() const;
   bool havePiece() const;
 protected:
@@ -38,7 +38,6 @@ private:
   Piece* piece_;
   bool highlighted_;
   Position position_;
-  std::string name_;
 };
 
 class Board : public QGraphicsGridLayout{
@@ -46,16 +45,15 @@ public:
   Board(QGraphicsLayoutItem* parent = nullptr);
   ~Board() override;
 
-  static void selectPiece(Piece* selected);
-  void movePiece(Position position);
-
-  static std::map<std::string, Piece*>& getPieceMap();
+  void selectPiece(Piece* selected);
+  bool movePiece(const Position position);
+  bool setGame(const std::list<std::string> specificationPiece);
+  void setNewGame();
+  std::map<std::string, Piece*>& getPieceMap();
 private:
-  static std::map<std::string, Case*> caseDict_;
-  static std::map<std::string, Piece*> pieceDict_;
-  static std::list<Case*> highlighted_;
-  static Piece* selected_;
+  std::map<Position, Square*> squareDict_;
+  std::map<std::string, Piece*> pieceDict_;
+  std::list<Square*> highlighted_;
+  Piece* selected_;
   void setGrid();
-  void setPiece();
-  void setPieceRandom();
 };

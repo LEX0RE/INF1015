@@ -1,8 +1,8 @@
 /**
-* Gère l'interface utilisation pour le jeu d'échec
-* \file   ChessWindow.cpp
+* Gère l'utilisation de scènes pour notre jeu d'échec
+* \file   View.cpp
 * \author Ioana Daria Danciu et Alexandre Gelinas
-* \date   6 avril 2021
+* \date   11 avril 2021
 * Cree le 6 avril 2021
 */
 
@@ -23,8 +23,10 @@ View::~View() {
 }
 
 void View::setNextScene(QGraphicsScene* nextScene) {
-  if (nextScene != nullptr)
+  if (nextScene != nullptr) {
+    delete nextScene_;
     nextScene_ = nextScene;
+  }
 }
 
 void View::switchScene() {

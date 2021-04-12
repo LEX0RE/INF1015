@@ -1,9 +1,9 @@
 #pragma once
 /**
-* Gestion du IU pour un jeu d'échec
+* Définition pour la gestion des scènes 
 * \file   View.hpp
 * \author Ioana Daria Danciu et Alexandre Gelinas
-* \date   6 avril 2021
+* \date   11 avril 2021
 * Cree le 6 avril 2021
 */
 

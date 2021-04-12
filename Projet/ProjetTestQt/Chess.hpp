@@ -1,9 +1,9 @@
 #pragma once
 /**
-* Gestion du IU pour un jeu d'échec
-* \file   ChessScene.hpp
+* Déclaration pour la scène d'un jeu d'échec
+* \file   Chess.hpp
 * \author Ioana Daria Danciu et Alexandre Gelinas
-* \date   6 avril 2021
+* \date   11 avril 2021
 * Cree le 6 avril 2021
 */
 
@@ -13,19 +13,18 @@
 #include <QListWidget>
 #pragma pop()
 #include "Board.hpp"
-//#include "History.hpp"
 
 class Chess : public QGraphicsScene {
 	Q_OBJECT
 
 public:
 	Chess();
-	~Chess() override;
+	~Chess() override = default;
 
 	static void addHistoryMove(QString mouvement);
 private:
-	QGraphicsWidget* gameWidget_;
-	QGraphicsLinearLayout* menu_;
+	QGraphicsWidget* mainWidget_;
+	QGraphicsLinearLayout* mainLayout_;
 	Board* board_;
 	static QListWidget* history_;
 };

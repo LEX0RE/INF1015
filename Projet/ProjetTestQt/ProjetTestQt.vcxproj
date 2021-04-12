@@ -113,19 +113,13 @@
   <ItemGroup>
     <ClCompile Include="bibliotheque_cours\bibliotheque_cours.cpp" />
     <ClCompile Include="bibliotheque_cours\verification_allocation.cpp" />
-    <ClCompile Include="Calc.cpp" />
-    <ClCompile Include="CalcWindow.cpp" />
     <ClCompile Include="Board.cpp" />
     <ClCompile Include="Chess.cpp" />
+    <ClCompile Include="TestBoard.cpp" />
     <ClCompile Include="View.cpp" />
     <ClCompile Include="googletest\src\gtest-all.cc" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Piece.cpp" />
-    <ClCompile Include="TestCalc.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <QtMoc Include="Calc.hpp" />
-    <QtMoc Include="CalcWindow.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Board.hpp" />

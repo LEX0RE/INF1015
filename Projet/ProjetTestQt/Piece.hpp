@@ -1,9 +1,9 @@
 #pragma once
 /**
 * Librairie pour la gestion d'une pièce d'un jeu d'échec
-* \file   piece.hpp
+* \file   Piece.hpp
 * \author Ioana Daria Danciu et Alexandre Gelinas
-* \date   6 avril 2021
+* \date   11 avril 2021
 * Cree le 6 avril 2021
 */
 
@@ -21,34 +21,39 @@ enum PieceColor{white, black};
 enum AddMoveState{stop, add};
 
 struct Position {
-	unsigned int x, y;
+	unsigned char x, y;
+	Position() = default;
+	Position(unsigned char x, unsigned char y);
+	Position(std::string name);
 
+	std::string name();
 	bool operator==(Position autre) const;
+	bool operator<(Position autre) const;
 };
 
 class Piece : public QGraphicsLayoutItem, public QGraphicsItem {
 public:
-	Piece(const PieceColor& color, const Position& position, QGraphicsItem* parent = nullptr);
-	void setName(const std::string name);
+	Piece(const PieceColor& color, const Position& position, const unsigned char& type, QGraphicsItem* parent = nullptr);
+	~Piece() override = default;
 	std::string getName() const;
 	void setPicture(const QRect& pictureRect);
 	Position getPosition() const;
-	void setPosition(const Position position);
 	PieceColor getColor() const;
 	virtual void checkPossibility() = 0;
-	std::list<Position> getPossibility() const;
-	AddMoveState addMove(Position position);
+	std::list<Position> getPossibility();
+	void clearPossibility();
+	AddMoveState addMove(const Position position);
 	void addDirection(int iterateX, int iterateY, iter::impl::Range<int> range);
-	bool move(Position position);
-	bool atAlly(Position position) const;
-	bool atEnemy(Position position) const;
+	bool move(const Position position);
+	bool atAlly(const Position position) const;
+	bool atEnemy(const Position position) const;
+	void click();
 
 	void setGeometry(const QRectF& geom) override;
 	QSizeF sizeHint(Qt::SizeHint which, const QSizeF& constraint = QSizeF()) const override;
 	QRectF boundingRect() const override;
 	virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = nullptr) override;
 
-	void click();
 protected:
 	PieceColor color_;
 	Position position_;
@@ -56,6 +61,7 @@ protected:
 	std::list<Position> possibility_;
 	bool moved_;
 	std::string name_;
+	std::map<std::string, Piece*>* allPieces_;
 };
 
 class King : public Piece {

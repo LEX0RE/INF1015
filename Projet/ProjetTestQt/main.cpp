@@ -1,10 +1,16 @@
-//#include "Calc.hpp"
-//#include "CalcWindow.hpp"
-//#include "Chess.hpp"
-#include "View.hpp"
+/**
+* Base du programme pour le jeu d'échec
+* \file   main.cpp
+* \author Ioana Daria Danciu et Alexandre Gelinas
+* \date   11 avril 2021
+* Cree le 6 avril 2021
+*/
 
 #include <QApplication>
 #include <iostream>
+#include "View.hpp"
+#include "Board.hpp"
+
 
 #if __has_include("bibliotheque_cours.hpp")
 #include "bibliotheque_cours.hpp"
@@ -16,7 +22,7 @@ auto& cdbg = clog;
 
 #if __has_include("verification_allocation.hpp")
 #include "verification_allocation.hpp"
-#include "debogage_memoire.hpp"  //NOTE: Incompatible avec le "placement new", ne pas utiliser cette entête si vous utilisez ce type de "new" dans les lignes qui suivent cette inclusion.
+//#include "debogage_memoire.hpp"  //NOTE: Incompatible avec le "placement new", ne pas utiliser cette entête si vous utilisez ce type de "new" dans les lignes qui suivent cette inclusion.
 #endif
 
 void initialiserBibliothequeCours([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
@@ -36,7 +42,6 @@ int main(int argc, char *argv[])
 	bibliotheque_cours::VerifierFuitesAllocations verifierFuitesAllocations;
 	QApplication app(argc, argv);
 	initialiserBibliothequeCours(argc, argv);
-
 	View view;
 	view.show();
 	return app.exec();
