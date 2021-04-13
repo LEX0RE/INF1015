@@ -42,12 +42,11 @@ bool Position::operator<(Position autre) const {
 Piece::Piece(const PieceColor& color, 
 						 const Position& position,
 						 const unsigned char& type,
-						 QGraphicsItem* parent) : QGraphicsLayoutItem(), 
-																 QGraphicsItem(parent),
-																 color_(color),
-																 position_(position), 
-																 moved_(false),
-																 possibility_({}) {
+						 QGraphicsItem* parent) : QGraphicsWidget(parent),
+																		  color_(color),
+																			position_(position), 
+																			moved_(false),
+																			possibility_({}) {
 	Square* square = dynamic_cast<Square*>(parentItem());
 	Board* board = dynamic_cast<Board*>(square->parentLayoutItem());
 	allPieces_ = &(board->getPieceMap());
@@ -68,8 +67,7 @@ void Piece::setPicture(const QRect& pictureRect) {
 	QImage image("pieces.png");
 	QTransform trans;
 	image = image.copy(pictureRect).transformed(trans.translate(-pictureRect.x(), -pictureRect.y()));
-	picture_ = QPixmap::fromImage(image);
-	setGraphicsItem(this);
+	picture_ = new QGraphicsPixmapItem(QPixmap::fromImage(image), this);
 }
 
 PieceColor Piece::getColor() const { return color_; }
@@ -79,29 +77,6 @@ Position Piece::getPosition() const { return position_; }
 void Piece::clearPossibility() {
 	while (possibility_.size() != 0)
 		possibility_.pop_back();
-}
-
-void Piece::setGeometry(const QRectF& geom)
-{
-	prepareGeometryChange();
-	QGraphicsLayoutItem::setGeometry(geom);
-	setPos(geom.topLeft());
-}
-
-QSizeF Piece::sizeHint(Qt::SizeHint which, const QSizeF& constraint) const
-{
-	return QSizeF(CASE_SIZE, CASE_SIZE);
-}
-
-QRectF Piece::boundingRect() const
-{
-	return QRectF(QPointF(0, 0), geometry().size());
-}
-void Piece::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
-{
-	Q_UNUSED(widget);
-	Q_UNUSED(option);
-	painter->drawPixmap(QRect(0, 0, CASE_SIZE, CASE_SIZE), picture_);
 }
 
 std::list<Position> Piece::getPossibility() {

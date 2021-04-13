@@ -23,8 +23,5 @@ public:
 
 	static void addHistoryMove(QString mouvement);
 private:
-	QGraphicsWidget* mainWidget_;
-	QGraphicsLinearLayout* mainLayout_;
-	Board* board_;
 	static QListWidget* history_;
 };

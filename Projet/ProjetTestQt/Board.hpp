@@ -20,7 +20,7 @@
 
 struct Square : public QGraphicsWidget {
 public:
-  Square(const Qt::GlobalColor color, const Position position);
+  Square(const Qt::GlobalColor color, const Position position, QGraphicsItem* parent = nullptr);
   ~Square() override = default;
 
   void highlight(const Qt::GlobalColor color);
@@ -43,7 +43,7 @@ private:
 class Board : public QGraphicsGridLayout{
 public:
   Board(QGraphicsLayoutItem* parent = nullptr);
-  ~Board() override;
+  ~Board() override = default;
 
   void selectPiece(Piece* selected);
   bool movePiece(const Position position);

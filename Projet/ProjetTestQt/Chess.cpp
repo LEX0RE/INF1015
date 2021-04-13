@@ -17,10 +17,10 @@ QListWidget* Chess::history_ = nullptr;
 
 Chess::Chess()
 {
-	mainWidget_ = new QGraphicsWidget();
-	mainLayout_ = new QGraphicsLinearLayout(Qt::Horizontal);
+	QGraphicsWidget* mainWidget_ = new QGraphicsWidget();
+	QGraphicsLinearLayout* mainLayout_ = new QGraphicsLinearLayout(Qt::Horizontal);
 	history_ = new QListWidget();
-	board_ = new Board(mainLayout_);
+	Board* board_ = new Board(mainLayout_);
 
 	mainLayout_->addItem(board_);
 
@@ -31,7 +31,8 @@ Chess::Chess()
 
 	mainWidget_->setLayout(mainLayout_);
 	addItem(mainWidget_);
-	setSceneRect(0, 0, board_->minimumWidth() + history_->minimumWidth(), board_->minimumHeight() + history_->minimumHeight());
+	setSceneRect(0, 0, board_->minimumWidth() + history_->minimumWidth(), 
+							 board_->minimumHeight() + history_->minimumHeight());
 	board_->setNewGame();
 }
 

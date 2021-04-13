@@ -31,7 +31,7 @@ struct Position {
 	bool operator<(Position autre) const;
 };
 
-class Piece : public QGraphicsLayoutItem, public QGraphicsItem {
+class Piece : public QGraphicsWidget {
 public:
 	Piece(const PieceColor& color, const Position& position, const unsigned char& type, QGraphicsItem* parent = nullptr);
 	~Piece() override = default;
@@ -49,15 +49,10 @@ public:
 	bool atEnemy(const Position position) const;
 	void click();
 
-	void setGeometry(const QRectF& geom) override;
-	QSizeF sizeHint(Qt::SizeHint which, const QSizeF& constraint = QSizeF()) const override;
-	QRectF boundingRect() const override;
-	virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = nullptr) override;
-
 protected:
 	PieceColor color_;
 	Position position_;
-	QPixmap picture_;
+	QGraphicsPixmapItem* picture_;
 	std::list<Position> possibility_;
 	bool moved_;
 	std::string name_;

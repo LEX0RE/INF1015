@@ -17,22 +17,23 @@
 #pragma pop()
 #include <cppitertools/range.hpp>
 #include <stdlib.h>
-#include <time.h>
-#include <Algorithm>
 #include "Board.hpp"
 #include "Chess.hpp"
 
 Square::Square(const Qt::GlobalColor color,
-					     Position position) : color_(color), 
+					     Position position,
+							 QGraphicsItem* parent) : color_(color),
 															      piece_(nullptr), 
 																	  highlighted_(false), 
-																		position_(position)
+																		position_(position),
+																		QGraphicsWidget(parent)
 {
 	QGraphicsWidget::setGeometry(0, 0, CASE_SIZE, CASE_SIZE);
 	square_ = new QGraphicsRectItem();
 	square_->setRect(0, 0, CASE_SIZE, CASE_SIZE);
 	square_->setBrush(color);
 	square_->setParentItem(this);
+	setOwnedByLayout(true);
 }
 
 Position Square::getPosition() const { return position_; }
@@ -77,28 +78,11 @@ Board::Board(QGraphicsLayoutItem* parent) : QGraphicsGridLayout(parent){
 	pieceDict_ = {};
 	highlighted_ = {};
 	selected_ = nullptr;
-	srand(time(NULL));
 	QRectF rect(0, 0, CASE_SIZE, CASE_SIZE);
 	setGeometry(rect);
 	setHorizontalSpacing(1);
 	setVerticalSpacing(1);
 	setGrid();
-	highlighted_ = {};
-}
-
-Board::~Board() {
-	for (auto& [key, value] : squareDict_) {
-		if (value->getPiece() != nullptr) {
-			pieceDict_.erase(pieceDict_.find(value->getPiece()->getName()));
-			delete value->getPiece();
-			value->removePiece();
-		}
-		removeItem(value);
-		delete value;
-	}
-	pieceDict_.clear();
-	squareDict_.clear();
-	invalidate();
 }
 
 std::map<std::string, Piece*>& Board::getPieceMap() { return pieceDict_; }
@@ -164,20 +148,17 @@ bool Board::movePiece(Position position) {
 }
 
 void Board::setGrid() {
-	Position position = {};
-	char rowTag = 0, columnTag = 0;
-	Square* square = nullptr;
+	Position position("a1");
 	for (unsigned int y : iter::range(8)) {
 		for (unsigned int x: iter::range(8)) {
 			position = { (unsigned char)('a' + x), (unsigned char)('8' - y) };
 			if ((y + x) % 2)
-				square = new Square(Qt::blue, position);
+				addItem(new Square(Qt::blue, position), y, x);
 			else
-				square = new Square(Qt::cyan, position);
-			square->QGraphicsWidget::setMinimumHeight(CASE_SIZE);
-			square->QGraphicsWidget::setMinimumWidth(CASE_SIZE);
-			addItem(square, y, x);
-			squareDict_[position] = square;
+				addItem(new Square(Qt::cyan, position), y, x);
+			itemAt(y, x)->setMinimumHeight(CASE_SIZE);
+			itemAt(y, x)->setMinimumWidth(CASE_SIZE);
+			squareDict_[position] = dynamic_cast<Square*>(itemAt(y, x));
 		}
 	}
 }
@@ -186,7 +167,7 @@ bool Board::setGame(std::list<std::string> specificationPiece) {
 	PieceColor color = white;
 	bool valid = true;
 	Piece* temporary = nullptr;
-	Position position = Position('a', '1');
+	Position position = Position("a1");
 	std::string name = "";
 
 	for (auto piece : specificationPiece) {
@@ -199,7 +180,7 @@ bool Board::setGame(std::list<std::string> specificationPiece) {
 			switch (piece[1]) {
 			case 'K':
 				temporary = new King(color, position, squareDict_[position]);
-				name = temporary->getName();
+				name = temporary->getName(); // Le compilateur me faisait un warning lorsque je le mettais à la fin du switch...
 				break;
 			case 'Q':
 				temporary = new Queen(color, position, squareDict_[position]);
