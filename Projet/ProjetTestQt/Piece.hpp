@@ -32,6 +32,8 @@ struct Position {
 };
 
 class Piece : public QGraphicsWidget {
+	Q_OBJECT
+
 public:
 	Piece(const PieceColor& color, const Position& position, const unsigned char& type, QGraphicsItem* parent = nullptr);
 	~Piece() override = default;
