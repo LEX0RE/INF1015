@@ -1,7 +1,7 @@
 #pragma once
 /**
 * Déclaration pour la scène d'un jeu d'échec
-* \file   Chess.hpp
+* \file   ChessScene.hpp
 * \author Ioana Daria Danciu et Alexandre Gelinas
 * \date   11 avril 2021
 * Cree le 6 avril 2021
@@ -12,14 +12,14 @@
 #include <QGraphicsLinearLayout>
 #include <QListWidget>
 #pragma pop()
-#include "Board.hpp"
+#include "BoardView.hpp"
 
-class Chess : public QGraphicsScene {
+class ChessScene : public QGraphicsScene {
 	Q_OBJECT
 
 public:
-	Chess();
-	~Chess() override = default;
+	ChessScene();
+	~ChessScene() override = default;
 
 	static void addHistoryMove(QString mouvement);
 private:

@@ -1,7 +1,7 @@
 #pragma once
 /**
 * Définition pour la gestion des scènes 
-* \file   View.hpp
+* \file   Window.hpp
 * \author Ioana Daria Danciu et Alexandre Gelinas
 * \date   11 avril 2021
 * Cree le 6 avril 2021
@@ -12,12 +12,12 @@
 #include <QGraphicsScene>
 #pragma pop()
 
-class View : public QGraphicsView {
+class Window : public QGraphicsView {
 	Q_OBJECT
 
 public:
-	View();
-	~View() override;
+	Window();
+	~Window() override;
 
 	void setNextScene(QGraphicsScene* nextScene);
 	void switchScene();

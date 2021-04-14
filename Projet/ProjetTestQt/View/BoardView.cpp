@@ -1,6 +1,6 @@
 /**
 * Gestion d'une planche du jeu d'échec
-* \file   Board.cpp
+* \file   BoardView.cpp
 * \author Ioana Daria Danciu et Alexandre Gelinas
 * \date   11 avril 2021
 * Cree le 6 avril 2021
@@ -17,10 +17,10 @@
 #pragma pop()
 #include <cppitertools/range.hpp>
 #include <stdlib.h>
-#include "Board.hpp"
-#include "Chess.hpp"
+#include "BoardView.hpp"
+#include "ChessScene.hpp"
 
-Square::Square(const Qt::GlobalColor color,
+SquareView::SquareView(const Qt::GlobalColor color,
 					     Position position,
 							 QGraphicsItem* parent) : color_(color),
 															      piece_(nullptr), 
@@ -36,31 +36,31 @@ Square::Square(const Qt::GlobalColor color,
 	setOwnedByLayout(true);
 }
 
-Position Square::getPosition() const { return position_; }
+Position SquareView::getPosition() const { return position_; }
 
-void Square::setPiece(Piece* piece) {
+void SquareView::setPiece(PieceView* piece) {
 	piece_ = piece;
 	piece_->setParentItem(this);
 }
 
-void Square::removePiece() {
+void SquareView::removePiece() {
 	piece_ = nullptr;
 }
 
-void Square::highlight(const Qt::GlobalColor color) {
+void SquareView::highlight(const Qt::GlobalColor color) {
 	highlighted_ = true;
 	square_->setBrush(color);
 }
 
-void Square::downlight() {
+void SquareView::downlight() {
 	highlighted_ = false;
 	square_->setBrush(color_);
 }
 
-void Square::mousePressEvent(QGraphicsSceneMouseEvent* event) {
+void SquareView::mousePressEvent(QGraphicsSceneMouseEvent* event) {
 	update();
 	if (highlighted_ == true) {
-		Board* parent = dynamic_cast<Board*>(parentLayoutItem());
+		BoardView* parent = dynamic_cast<BoardView*>(parentLayoutItem());
 		if (parent != nullptr)
 			parent->movePiece(position_);
 	}
@@ -69,11 +69,11 @@ void Square::mousePressEvent(QGraphicsSceneMouseEvent* event) {
 	QGraphicsWidget::mousePressEvent(event);
 }
 
-bool Square::havePiece() const { return (piece_ != nullptr); }
+bool SquareView::havePiece() const { return (piece_ != nullptr); }
 
-Piece* Square::getPiece() const { return piece_; }
+PieceView* SquareView::getPiece() const { return piece_; }
 
-Board::Board(QGraphicsLayoutItem* parent) : QGraphicsGridLayout(parent){
+BoardView::BoardView(QGraphicsLayoutItem* parent) : QGraphicsGridLayout(parent){
 	squareDict_ = {};
 	pieceDict_ = {};
 	highlighted_ = {};
@@ -85,9 +85,9 @@ Board::Board(QGraphicsLayoutItem* parent) : QGraphicsGridLayout(parent){
 	setGrid();
 }
 
-std::map<std::string, Piece*>& Board::getPieceMap() { return pieceDict_; }
+std::map<std::string, PieceView*>& BoardView::getPieceMap() { return pieceDict_; }
 
-void Board::selectPiece(Piece* selected) {
+void BoardView::selectPiece(PieceView* selected) {
 	if (highlighted_.size() > 0) {
 		while (highlighted_.size()) {
 			highlighted_.front()->downlight();
@@ -110,10 +110,10 @@ void Board::selectPiece(Piece* selected) {
 	}
 }
 
-bool Board::movePiece(Position position) {
+bool BoardView::movePiece(Position position) {
 	Position lastPosition = selected_->getPosition(), newPosition = {};
-	Square* lastCase = squareDict_[lastPosition];
-	Piece* pieceEaten = nullptr;
+	SquareView* lastCase = squareDict_[lastPosition];
+	PieceView* pieceEaten = nullptr;
 	if (selected_->move(position)) {
 		newPosition = selected_->getPosition();
 		pieceEaten = squareDict_[newPosition]->getPiece();
@@ -153,7 +153,7 @@ bool Board::movePiece(Position position) {
 			highlighted_.pop_front();
 		}
 		if(parentLayoutItem())
-			Chess::addHistoryMove(mouvement);
+			ChessScene::addHistoryMove(mouvement);
 		selected_ = nullptr;
 		for (auto& [key, value] : pieceDict_)
 			value->checkPossibility();
@@ -163,26 +163,26 @@ bool Board::movePiece(Position position) {
 		return false;
 }
 
-void Board::setGrid() {
+void BoardView::setGrid() {
 	Position position("a1");
 	for (unsigned int y : iter::range(8)) {
 		for (unsigned int x: iter::range(8)) {
 			position = { (unsigned char)('a' + x), (unsigned char)('8' - y) };
 			if ((y + x) % 2)
-				addItem(new Square(Qt::blue, position), y, x);
+				addItem(new SquareView(Qt::blue, position), y, x);
 			else
-				addItem(new Square(Qt::cyan, position), y, x);
+				addItem(new SquareView(Qt::cyan, position), y, x);
 			itemAt(y, x)->setMinimumHeight(CASE_SIZE);
 			itemAt(y, x)->setMinimumWidth(CASE_SIZE);
-			squareDict_[position] = dynamic_cast<Square*>(itemAt(y, x));
+			squareDict_[position] = dynamic_cast<SquareView*>(itemAt(y, x));
 		}
 	}
 }
 
-bool Board::setGame(std::list<std::string> specificationPiece) {
+bool BoardView::setGame(std::list<std::string> specificationPiece) {
 	PieceColor color = white;
 	bool valid = true;
-	Piece* temporary = nullptr;
+	PieceView* temporary = nullptr;
 	Position position = Position("a1");
 	std::string name = "";
 
@@ -195,31 +195,31 @@ bool Board::setGame(std::list<std::string> specificationPiece) {
 		if (squareDict_[position]->havePiece() == false) {
 			switch (piece[1]) {
 			case 'K':
-				temporary = new King(color, position, squareDict_[position]);
+				temporary = new KingView(color, position, squareDict_[position]);
 				name = temporary->getName(); // Le compilateur me faisait un warning lorsque je le mettais à la fin du switch...
 				break;
 			case 'Q':
-				temporary = new Queen(color, position, squareDict_[position]);
+				temporary = new QueenView(color, position, squareDict_[position]);
 				name = temporary->getName();
 				break;
 			case 'N':
-				temporary = new Knight(color, position, squareDict_[position]);
+				temporary = new KnightView(color, position, squareDict_[position]);
 				name = temporary->getName();
 				break;
 			case 'B':
-				temporary = new Bishop(color, position, squareDict_[position]);
+				temporary = new BishopView(color, position, squareDict_[position]);
 				name = temporary->getName();
 				break;
 			case 'P':
 				if (position.y == '8' || position.y == '1')
 					valid = false;
 				else {
-					temporary = new Pawn(color, position, squareDict_[position]);
+					temporary = new PawnView(color, position, squareDict_[position]);
 					name = temporary->getName();
 				}
 				break;
 			case 'R':
-				temporary = new Rook(color, position, squareDict_[position]);
+				temporary = new RookView(color, position, squareDict_[position]);
 				name = temporary->getName();
 				break;
 			}
@@ -249,8 +249,8 @@ bool Board::setGame(std::list<std::string> specificationPiece) {
 	return true;
 }
 
-void Board::setNewGame() {
-	Piece* piece = nullptr;
+void BoardView::setNewGame() {
+	PieceView* piece = nullptr;
 	PieceColor color = black;
 	Position position = {};
 	std::string name = "";
@@ -262,29 +262,29 @@ void Board::setNewGame() {
 					piece = nullptr;
 					switch (x) {
 					case 0: case 7:
-						piece = new Rook(color, position, squareDict_[position]);
+						piece = new RookView(color, position, squareDict_[position]);
 						name = piece->getName();
 						break;
 					case 1: case 6:
-						piece = new Knight(color, position, squareDict_[position]);
+						piece = new KnightView(color, position, squareDict_[position]);
 						name = piece->getName();
 						break;
 					case 2: case 5:
-						piece = new Bishop(color, position, squareDict_[position]);
+						piece = new BishopView(color, position, squareDict_[position]);
 						name = piece->getName();
 						break;
 					case 3:
-						piece = new Queen(color, position, squareDict_[position]);
+						piece = new QueenView(color, position, squareDict_[position]);
 						name = piece->getName();
 						break;
 					case 4:
-						piece = new King(color, position, squareDict_[position]);
+						piece = new KingView(color, position, squareDict_[position]);
 						name = piece->getName();
 						break;
 					}
 				}
 				else {
-					piece = new Pawn(color, position, squareDict_[position]);
+					piece = new PawnView(color, position, squareDict_[position]);
 					name = piece->getName();
 				}
 				pieceDict_[name] = piece;

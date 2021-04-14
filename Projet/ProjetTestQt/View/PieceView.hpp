@@ -1,7 +1,7 @@
 #pragma once
 /**
 * Librairie pour la gestion d'une pièce d'un jeu d'échec
-* \file   Piece.hpp
+* \file   PieceView.hpp
 * \author Ioana Daria Danciu et Alexandre Gelinas
 * \date   11 avril 2021
 * Cree le 6 avril 2021
@@ -31,12 +31,12 @@ struct Position {
 	bool operator<(Position autre) const;
 };
 
-class Piece : public QGraphicsWidget {
+class PieceView : public QGraphicsWidget {
 	Q_OBJECT
 
 public:
-	Piece(const PieceColor& color, const Position& position, const unsigned char& type, QGraphicsItem* parent = nullptr);
-	~Piece() override = default;
+	PieceView(const PieceColor& color, const Position& position, const unsigned char& type, QGraphicsItem* parent = nullptr);
+	~PieceView() override = default;
 	std::string getName() const;
 	void setPicture(const QRect& pictureRect);
 	Position getPosition() const;
@@ -58,47 +58,47 @@ protected:
 	QGraphicsPixmapItem* picture_;
 	std::list<Position> possibility_;
 	std::string name_;
-	std::map<std::string, Piece*>* allPieces_;
+	std::map<std::string, PieceView*>* allPieces_;
 };
 
-class King : public Piece {
+class KingView : public PieceView {
 public:
-	King(const PieceColor& color, const Position& position, QGraphicsItem* parent = nullptr);
+	KingView(const PieceColor& color, const Position& position, QGraphicsItem* parent = nullptr);
 
 	void checkPossibility() override;
 };
 
-class Queen : public Piece {
+class QueenView : public PieceView {
 public:
-	Queen(const PieceColor& color, const Position& position, QGraphicsItem* parent = nullptr);
+	QueenView(const PieceColor& color, const Position& position, QGraphicsItem* parent = nullptr);
 
 	void checkPossibility() override;
 };
 
-class Knight : public Piece {
+class KnightView : public PieceView {
 public:
-	Knight(const PieceColor& color, const Position& position, QGraphicsItem* parent = nullptr);
+	KnightView(const PieceColor& color, const Position& position, QGraphicsItem* parent = nullptr);
 
 	void checkPossibility() override;
 };
 
-class Bishop : public Piece {
+class BishopView : public PieceView {
 public:
-	Bishop(const PieceColor& color, const Position& position, QGraphicsItem* parent = nullptr);
+	BishopView(const PieceColor& color, const Position& position, QGraphicsItem* parent = nullptr);
 
 	void checkPossibility() override;
 };
 
-class Rook : public Piece {
+class RookView : public PieceView {
 public:
-	Rook(const PieceColor& color, const Position& position, QGraphicsItem* parent = nullptr);
+	RookView(const PieceColor& color, const Position& position, QGraphicsItem* parent = nullptr);
 
 	void checkPossibility() override;
 };
 
-class Pawn : public Piece {
+class PawnView : public PieceView {
 public:
-	Pawn(const PieceColor& color, const Position& position, QGraphicsItem* parent = nullptr);
+	PawnView(const PieceColor& color, const Position& position, QGraphicsItem* parent = nullptr);
 
 	void checkPossibility() override;
 };

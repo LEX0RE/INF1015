@@ -1,6 +1,6 @@
 /**
 * Gestion de la scène pour le jeu d'échec
-* \file   Chess.cpp
+* \file   ChessScene.cpp
 * \author Ioana Daria Danciu et Alexandre Gelinas
 * \date   11 avril 2021
 * Cree le 6 avril 2021
@@ -11,16 +11,16 @@
 #include <QGraphicsProxyWidget>
 #pragma pop()
 #include <iostream>
-#include "Chess.hpp"
+#include "ChessScene.hpp"
 
-QListWidget* Chess::history_ = nullptr;
+QListWidget* ChessScene::history_ = nullptr;
 
-Chess::Chess()
+ChessScene::ChessScene()
 {
 	QGraphicsWidget* mainWidget_ = new QGraphicsWidget();
 	QGraphicsLinearLayout* mainLayout_ = new QGraphicsLinearLayout(Qt::Horizontal);
 	history_ = new QListWidget();
-	Board* board_ = new Board(mainLayout_);
+	BoardView* board_ = new BoardView(mainLayout_);
 
 	mainLayout_->addItem(board_);
 
@@ -36,7 +36,7 @@ Chess::Chess()
 	board_->setNewGame();
 }
 
-void Chess::addHistoryMove(QString mouvement) {
+void ChessScene::addHistoryMove(QString mouvement) {
 	QListWidgetItem* message = new QListWidgetItem(mouvement);
 	QFont font = message->font();
 	font.setPixelSize(40);

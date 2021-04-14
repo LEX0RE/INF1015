@@ -10,8 +10,8 @@
 #include <QPainter>
 #pragma pop()
 
-#include "Piece.hpp"
-#include "Board.hpp"
+#include "PieceView.hpp"
+#include "BoardView.hpp"
 
 using iter::range;
 
@@ -39,16 +39,16 @@ bool Position::operator<(Position autre) const {
 	return x < autre.x;
 }
 
-Piece::Piece(const PieceColor& color, 
-						 const Position& position,
-						 const unsigned char& type,
-						 QGraphicsItem* parent) : QGraphicsWidget(parent),
-																		  color_(color),
-																			position_(position),
-																			lastPosition_(position),
-																			possibility_({}) {
-	Square* square = dynamic_cast<Square*>(parentItem());
-	Board* board = dynamic_cast<Board*>(square->parentLayoutItem());
+PieceView::PieceView(const PieceColor& color,
+										 const Position& position,
+										 const unsigned char& type,
+										 QGraphicsItem* parent) : QGraphicsWidget(parent),
+																						  color_(color),
+																							position_(position),
+																							lastPosition_(position),
+																							possibility_({}) {
+	SquareView* square = dynamic_cast<SquareView*>(parentItem());
+	BoardView* board = dynamic_cast<BoardView*>(square->parentLayoutItem());
 	allPieces_ = &(board->getPieceMap());
 	if (color == white)
 		name_ = "W";
@@ -61,31 +61,31 @@ Piece::Piece(const PieceColor& color,
 	}
 }
 
-std::string Piece::getName() const { return name_; }
+std::string PieceView::getName() const { return name_; }
 
-void Piece::setPicture(const QRect& pictureRect) {
+void PieceView::setPicture(const QRect& pictureRect) {
 	QImage image("pieces.png");
 	QTransform trans;
 	image = image.copy(pictureRect).transformed(trans.translate(-pictureRect.x(), -pictureRect.y()));
 	picture_ = new QGraphicsPixmapItem(QPixmap::fromImage(image), this);
 }
 
-PieceColor Piece::getColor() const { return color_; }
+PieceColor PieceView::getColor() const { return color_; }
 
-Position Piece::getPosition() const { return position_; }
+Position PieceView::getPosition() const { return position_; }
 
-void Piece::clearPossibility() {
+void PieceView::clearPossibility() {
 	while (possibility_.size() != 0)
 		possibility_.pop_back();
 }
 
-std::list<Position> Piece::getPossibility() {
+std::list<Position> PieceView::getPossibility() {
 	if(possibility_.size() == 0)
 		checkPossibility();
 	return possibility_;
 }
 
-bool Piece::move(Position position) {
+bool PieceView::move(Position position) {
 	for (auto it : getPossibility()) {
 		if (it == position) {
 			lastPosition_ = position_;
@@ -97,7 +97,7 @@ bool Piece::move(Position position) {
 	return false;
 }
 
-AddMoveState Piece::addMove(Position position) {
+AddMoveState PieceView::addMove(Position position) {
 	if (position != position_) {
 		if (position.x >= 'a' && position.x <= 'h' && position.y <= '8' && position.y >= '1') {
 			if (atAlly(position))
@@ -111,7 +111,7 @@ AddMoveState Piece::addMove(Position position) {
 	return stop;
 }
 
-void Piece::addDirection(int iterateX, int iterateY, iter::impl::Range<int> range) {
+void PieceView::addDirection(int iterateX, int iterateY, iter::impl::Range<int> range) {
 	bool valid = true;
 	Position test;
 
@@ -124,11 +124,11 @@ void Piece::addDirection(int iterateX, int iterateY, iter::impl::Range<int> rang
 	}
 }
 
-void Piece::cancelMove() {
+void PieceView::cancelMove() {
 	position_ = lastPosition_;
 }
 
-bool Piece::atAlly(Position position) const {
+bool PieceView::atAlly(Position position) const {
 	for (auto& [key, value] : *allPieces_) {
 		if (value->getPosition() == position && value->getColor() == color_)
 			return true;
@@ -136,7 +136,7 @@ bool Piece::atAlly(Position position) const {
 	return false;
 }
 
-bool Piece::atEnemy(Position position) const {
+bool PieceView::atEnemy(Position position) const {
 	for (auto& [key, value] : *allPieces_) {
 		if (value->getPosition() == position && value->getColor() != color_)
 			return true;
@@ -144,17 +144,17 @@ bool Piece::atEnemy(Position position) const {
 	return false;
 }
 
-void Piece::click()
+void PieceView::click()
 {
 	update();
-	Square* square = dynamic_cast<Square*>(parentItem());
-	Board* board = dynamic_cast<Board*>(square->parentLayoutItem());
+	SquareView* square = dynamic_cast<SquareView*>(parentItem());
+	BoardView* board = dynamic_cast<BoardView*>(square->parentLayoutItem());
 	board->selectPiece(this);
 }
 
-King::King(const PieceColor& color, 
-					 const Position& position, 
-					 QGraphicsItem* parent) : Piece(color, position, 'K', parent)
+KingView::KingView(const PieceColor& color,
+									 const Position& position, 
+									 QGraphicsItem* parent) : PieceView(color, position, 'K', parent)
 {
 	if (color == black)
 		setPicture(QRect(-15, 148, CASE_SIZE, CASE_SIZE));
@@ -162,7 +162,7 @@ King::King(const PieceColor& color,
 		setPicture(QRect(-13, 349, CASE_SIZE, CASE_SIZE));
 }
 
-void King::checkPossibility() {
+void KingView::checkPossibility() {
 	possibility_.clear();
 	std::list<Position> possibility;
 	for (int x : iter::range(-1, 2)) {
@@ -173,16 +173,16 @@ void King::checkPossibility() {
 	}
 }
 
-Queen::Queen(const PieceColor& color, 
-						 const Position& position, 
-						 QGraphicsItem* parent) : Piece(color, position, 'Q', parent) {
+QueenView::QueenView(const PieceColor& color,
+								 const Position& position, 
+								 QGraphicsItem* parent) : PieceView(color, position, 'Q', parent) {
 	if (color == black)
 		setPicture(QRect(221, 149, CASE_SIZE, CASE_SIZE));
 	else
 		setPicture(QRect(223, 350, CASE_SIZE, CASE_SIZE));
 }
 
-void Queen::checkPossibility() {
+void QueenView::checkPossibility() {
 	possibility_.clear();
 	addDirection(1, 1, iter::range(1, 8));
 	addDirection(-1, 1, iter::range(1, 8));
@@ -194,16 +194,16 @@ void Queen::checkPossibility() {
 	addDirection(0, -1, iter::range(1, 8));
 }
 
-Knight::Knight(const PieceColor& color, 
-							 const Position& position, 
-							 QGraphicsItem* parent) : Piece(color, position, 'N', parent) {
+KnightView::KnightView(const PieceColor& color,
+											 const Position& position, 
+											 QGraphicsItem* parent) : PieceView(color, position, 'N', parent) {
 	if (color == black)
 		setPicture(QRect(932, 154, CASE_SIZE, CASE_SIZE));
 	else
 		setPicture(QRect(932, 355, CASE_SIZE, CASE_SIZE));
 }
 
-void Knight::checkPossibility() {
+void KnightView::checkPossibility() {
 	possibility_.clear();
 	std::list<Position> possibility;
 	for (int x : iter::range(-2, 3)) {
@@ -216,16 +216,16 @@ void Knight::checkPossibility() {
 	}
 }
 
-Bishop::Bishop(const PieceColor& color, 
-							 const Position& position, 
-							 QGraphicsItem* parent) : Piece(color, position, 'B', parent) {
+BishopView::BishopView(const PieceColor& color,
+											 const Position& position, 
+											 QGraphicsItem* parent) : PieceView(color, position, 'B', parent) {
 	if (color == black)
 		setPicture(QRect(695, 149, CASE_SIZE, CASE_SIZE));
 	else
 		setPicture(QRect(697, 349, CASE_SIZE, CASE_SIZE));
 }
 
-void Bishop::checkPossibility() {
+void BishopView::checkPossibility() {
 	possibility_.clear();
 	addDirection(1, 1, iter::range(1, 8));
 	addDirection(-1, 1, iter::range(1, 8));
@@ -233,16 +233,16 @@ void Bishop::checkPossibility() {
 	addDirection(-1, -1, iter::range(1, 8));
 }
 
-Rook::Rook(const PieceColor& color, 
-					 const Position& position, 
-					 QGraphicsItem* parent) : Piece(color, position, 'R', parent) {
+RookView::RookView(const PieceColor& color,
+									 const Position& position, 
+									 QGraphicsItem* parent) : PieceView(color, position, 'R', parent) {
 	if (color == black)
 		setPicture(QRect(459, 154, CASE_SIZE, CASE_SIZE));
 	else
 		setPicture(QRect(460, 355, CASE_SIZE, CASE_SIZE));
 }
 
-void Rook::checkPossibility() {
+void RookView::checkPossibility() {
 	possibility_.clear();
 	addDirection(1, 0, iter::range(1, 8));
 	addDirection(-1, 0, iter::range(1, 8));
@@ -250,16 +250,16 @@ void Rook::checkPossibility() {
 	addDirection(0, -1, iter::range(1, 8));
 }
 
-Pawn::Pawn(const PieceColor& color, 
-					 const Position& position, 
-					 QGraphicsItem* parent) : Piece(color, position, 'P', parent) {
+PawnView::PawnView(const PieceColor& color,
+									 const Position& position, 
+									 QGraphicsItem* parent) : PieceView(color, position, 'P', parent) {
 	if (color == black)
 		setPicture(QRect(1168, 154, CASE_SIZE, CASE_SIZE));
 	else
 		setPicture(QRect(1170, 355, CASE_SIZE, CASE_SIZE));
 }
 
-void Pawn::checkPossibility() {
+void PawnView::checkPossibility() {
 	possibility_.clear();
 	Position test;
 	char direction = 1;

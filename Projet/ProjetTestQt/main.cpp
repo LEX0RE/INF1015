@@ -8,8 +8,7 @@
 
 #include <QApplication>
 #include <iostream>
-#include "View.hpp"
-#include "Board.hpp"
+#include "View/Window.hpp"
 
 
 #if __has_include("bibliotheque_cours.hpp")
@@ -42,7 +41,7 @@ int main(int argc, char *argv[])
 	bibliotheque_cours::VerifierFuitesAllocations verifierFuitesAllocations;
 	QApplication app(argc, argv);
 	initialiserBibliothequeCours(argc, argv);
-	View view;
-	view.show();
+	Window window;
+	window.show();
 	return app.exec();
 }
