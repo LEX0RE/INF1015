@@ -76,24 +76,19 @@ TEST(Board, mouvements) {
 	board->setGame(positioning);
 	board->selectPiece(board->getPieceMap()["WK1"]);
 	EXPECT_EQ(board->movePiece(Position("e5")), false);
-	EXPECT_EQ(board->movePiece(Position("d4")), true);
+	EXPECT_EQ(board->movePiece(Position("e6")), true);
 	board->selectPiece(board->getPieceMap()["BK1"]);
-	EXPECT_EQ(board->movePiece(Position("d4")), true);
-	board->selectPiece(board->getPieceMap()["BK1"]);
-	EXPECT_EQ(board->movePiece(Position("c5")), false);
-	board->selectPiece(board->getPieceMap()["WQ1"]);
-	EXPECT_EQ(board->movePiece(Position("e2")), true);
+	EXPECT_EQ(board->movePiece(Position("d4")), false);
+	EXPECT_EQ(board->movePiece(Position("f4")), true);
 	board->selectPiece(board->getPieceMap()["WQ1"]);
 	EXPECT_EQ(board->movePiece(Position("e5")), false);
+	EXPECT_EQ(board->movePiece(Position("f2")), true);
 	board->selectPiece(board->getPieceMap()["BB1"]);
-	EXPECT_EQ(board->movePiece(Position("g1")), false);
-	EXPECT_EQ(board->movePiece(Position("b6")), true);
+	EXPECT_EQ(board->movePiece(Position("a7")), false);
+	EXPECT_EQ(board->movePiece(Position("f2")), true);
 	board->selectPiece(board->getPieceMap()["WN1"]);
+	EXPECT_EQ(board->movePiece(Position("f4")), false);
 	EXPECT_EQ(board->movePiece(Position("f3")), true);
-	board->selectPiece(board->getPieceMap()["WN1"]);
-	EXPECT_EQ(board->movePiece(Position("d4")), true);
-	board->selectPiece(board->getPieceMap()["WN1"]);
-	EXPECT_EQ(board->movePiece(Position("e2")), false);
 	delete board;
 }
 

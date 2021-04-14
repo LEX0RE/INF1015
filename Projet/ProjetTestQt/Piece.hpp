@@ -46,6 +46,7 @@ public:
 	void clearPossibility();
 	AddMoveState addMove(const Position position);
 	void addDirection(int iterateX, int iterateY, iter::impl::Range<int> range);
+	void cancelMove();
 	bool move(const Position position);
 	bool atAlly(const Position position) const;
 	bool atEnemy(const Position position) const;
@@ -53,10 +54,9 @@ public:
 
 protected:
 	PieceColor color_;
-	Position position_;
+	Position position_, lastPosition_;
 	QGraphicsPixmapItem* picture_;
 	std::list<Position> possibility_;
-	bool moved_;
 	std::string name_;
 	std::map<std::string, Piece*>* allPieces_;
 };

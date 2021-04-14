@@ -115,10 +115,26 @@ bool Board::movePiece(Position position) {
 	Square* lastCase = squareDict_[lastPosition];
 	Piece* pieceEaten = nullptr;
 	if (selected_->move(position)) {
-		QString mouvement = "";
-		squareDict_[lastPosition]->removePiece();
 		newPosition = selected_->getPosition();
 		pieceEaten = squareDict_[newPosition]->getPiece();
+
+		Position blackKingPosition = pieceDict_["BK1"]->getPosition();
+		Position whiteKingPosition = pieceDict_["WK1"]->getPosition();
+		for (auto& [key, value] : pieceDict_) {
+			if ((value->getColor() != selected_->getColor()) && (pieceEaten != value)) {
+				value->checkPossibility();
+				for (auto position : value->getPossibility()) {
+					if ((selected_->getColor() == black && position == blackKingPosition) ||
+						 (selected_->getColor() == white && position == whiteKingPosition)) {
+						selected_->cancelMove();
+						return false;
+					}
+				}
+			}
+		}
+			
+		QString mouvement = "";
+		squareDict_[lastPosition]->removePiece();
 		if (selected_->getName()[1] != 'P')
 			mouvement += selected_->getName()[1];
 		mouvement += lastPosition.name().c_str();
@@ -140,7 +156,7 @@ bool Board::movePiece(Position position) {
 			Chess::addHistoryMove(mouvement);
 		selected_ = nullptr;
 		for (auto& [key, value] : pieceDict_)
-			value->clearPossibility();
+			value->checkPossibility();
 		return true;
 	}
 	else

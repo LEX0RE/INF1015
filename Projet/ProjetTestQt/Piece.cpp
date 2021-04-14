@@ -44,8 +44,8 @@ Piece::Piece(const PieceColor& color,
 						 const unsigned char& type,
 						 QGraphicsItem* parent) : QGraphicsWidget(parent),
 																		  color_(color),
-																			position_(position), 
-																			moved_(false),
+																			position_(position),
+																			lastPosition_(position),
 																			possibility_({}) {
 	Square* square = dynamic_cast<Square*>(parentItem());
 	Board* board = dynamic_cast<Board*>(square->parentLayoutItem());
@@ -88,7 +88,7 @@ std::list<Position> Piece::getPossibility() {
 bool Piece::move(Position position) {
 	for (auto it : getPossibility()) {
 		if (it == position) {
-			moved_ = true;
+			lastPosition_ = position_;
 			position_ = position;
 			update();
 			return true;
@@ -122,6 +122,10 @@ void Piece::addDirection(int iterateX, int iterateY, iter::impl::Range<int> rang
 				valid = false;
 		}
 	}
+}
+
+void Piece::cancelMove() {
+	position_ = lastPosition_;
 }
 
 bool Piece::atAlly(Position position) const {
@@ -264,7 +268,7 @@ void Pawn::checkPossibility() {
 
 	if (color_ == black)
 		direction = -1;
-	if (moved_ == false)
+	if ((color_ == black && position_.y == '7') || (color_ == white && position_.y == '2')) // TODO : À revoir
 		maxMove = 2;
 
 	for (int i : iter::range(1, 1 + maxMove)) {
