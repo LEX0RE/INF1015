@@ -20,12 +20,6 @@
     <Filter Include="Sources Bibliotheques">
       <UniqueIdentifier>{68ace6f3-7624-4063-b7e8-0b2c755fbfc8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\View">
-      <UniqueIdentifier>{9d861091-4b89-4f0a-bd72-79fb8fc5a898}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\View">
-      <UniqueIdentifier>{e2fd279a-d5bc-46df-a823-5fad42b3ff25}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -49,19 +43,10 @@
     <ClCompile Include="Piece.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="View\BoardView.cpp">
-      <Filter>Source Files\View</Filter>
-    </ClCompile>
-    <ClCompile Include="View\ChessScene.cpp">
-      <Filter>Source Files\View</Filter>
-    </ClCompile>
-    <ClCompile Include="View\PieceView.cpp">
-      <Filter>Source Files\View</Filter>
-    </ClCompile>
-    <ClCompile Include="View\Window.cpp">
-      <Filter>Source Files\View</Filter>
-    </ClCompile>
     <ClCompile Include="History.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Chess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -69,25 +54,16 @@
     <QtMoc Include="Piece.hpp">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="Chess.hpp">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="View\BoardView.hpp">
-      <Filter>Header Files\View</Filter>
-    </ClInclude>
     <ClInclude Include="Game.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="History.hpp">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="View\Window.hpp">
-      <Filter>Header Files\View</Filter>
-    </ClInclude>
-    <ClInclude Include="View\ChessScene.hpp">
-      <Filter>Header Files\View</Filter>
-    </ClInclude>
-    <ClInclude Include="View\PieceView.hpp">
-      <Filter>Header Files\View</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
