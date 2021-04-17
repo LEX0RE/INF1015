@@ -5,7 +5,7 @@
 * \date   11 avril 2021
 * Cree le 6 avril 2021
 */
-
+/*
 #include "Window.hpp"
 #include "ChessScene.hpp"
 
@@ -36,3 +36,4 @@ void Window::switchScene() {
     nextScene_ = temporary;
   }
 }
+*/

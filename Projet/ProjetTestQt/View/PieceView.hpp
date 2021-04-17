@@ -15,7 +15,7 @@
 #include <cppitertools/range.hpp>
 
 // Image au lien suivant : https://pixabay.com/fr/vectors/d-%C3%A9checs-pi%C3%A8ces-ensemble-symboles-26774/
-
+/*
 enum PieceColor{white, black};
 
 enum AddMoveState{stop, add};
@@ -102,3 +102,4 @@ public:
 
 	void checkPossibility() override;
 };
+*/
