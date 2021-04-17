@@ -8,7 +8,12 @@
 
 #include <QApplication>
 #include <iostream>
+<<<<<<< Updated upstream
 //#include "View/Window.hpp"
+=======
+#include "View/Window.hpp"
+#include "Chess.hpp"
+>>>>>>> Stashed changes
 
 
 #if __has_include("bibliotheque_cours.hpp")
@@ -41,7 +46,12 @@ int main(int argc, char *argv[])
 	bibliotheque_cours::VerifierFuitesAllocations verifierFuitesAllocations;
 	QApplication app(argc, argv);
 	initialiserBibliothequeCours(argc, argv);
+<<<<<<< Updated upstream
 	//Window window;
 	//window.show();
+=======
+	WindowView window;
+	window.show();
+>>>>>>> Stashed changes
 	return app.exec();
 }
