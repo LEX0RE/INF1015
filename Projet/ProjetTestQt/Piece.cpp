@@ -16,33 +16,33 @@
 using iter::range;
 using namespace std;
 
-Position::Position(unsigned char x, unsigned char y) {
+model::Position::Position(unsigned char x, unsigned char y) {
 	this->x = x;
 	this->y = y;
 }
 
-Position::Position(string name) {
+model::Position::Position(string name) {
 	if (name.size() >= 2) {
 		x = name[0];
 		y = name[1];
 	}
 }
 
-string Position::name(){
+string model::Position::name(){
 	return (string() + (char)x + (char)y);
 }
 
-bool Position::operator==(Position autre) const { return x == autre.x && y == autre.y; }
+bool model::Position::operator==(Position autre) const { return x == autre.x && y == autre.y; }
 
-bool Position::operator<(Position autre) const {
+bool model::Position::operator<(Position autre) const {
 	if (x == autre.x)
 		return y < autre.y;
 	return x < autre.x;
 }
 
-map<string, Piece*> Piece::allPieces_ = {};
+map<string, model::Piece*> model::Piece::allPieces_ = {};
 
-Piece::Piece(const PieceColor& color, 
+model::Piece::Piece(const PieceColor& color,
 						 const unsigned char& type,
 						 const Position& position) : color_(color),
 																				 position_(position),
@@ -60,17 +60,17 @@ Piece::Piece(const PieceColor& color,
 	allPieces_[name_] = this;
 }
 
-Piece::~Piece() {
+model::Piece::~Piece() {
 	allPieces_.erase(name_);
 }
 
-string Piece::getName() const { return name_; }
+string model::Piece::getName() const { return name_; }
 
-PieceColor Piece::getColor() const { return color_; }
+model::PieceColor model::Piece::getColor() const { return color_; }
 
-Position Piece::getPosition() const { return position_; }
+model::Position model::Piece::getPosition() const { return position_; }
 
-void Piece::generatePossibility() {
+void model::Piece::generatePossibility() {
 	bool blackCheck = false, whiteCheck = false;
 	for (auto& [key, value] : allPieces_)
 		value->checkPossibility();
@@ -79,7 +79,7 @@ void Piece::generatePossibility() {
 		value->removeCheckSelfPossibility();
 }
 
-void Piece::removeCheckSelfPossibility() {
+void model::Piece::removeCheckSelfPossibility() {
 	list<Position> toRemove;
 	if (possibility_.size() != 0) {
 		for (auto position : possibility_) {
@@ -94,9 +94,9 @@ void Piece::removeCheckSelfPossibility() {
 	}
 }
 
-list<Position> Piece::getPossibility() { return possibility_; }
+list<model::Position> model::Piece::getPossibility() { return possibility_; }
 
-bool Piece::movePiece(const Position& position) {
+bool model::Piece::movePiece(const Position& position) {
 	for (auto it : getPossibility()) {
 		if (it == position) {
 			lastPosition_ = position_;
@@ -107,7 +107,7 @@ bool Piece::movePiece(const Position& position) {
 	return false;
 }
 
-bool Piece::isDoingCheck() {
+bool model::Piece::isDoingCheck() {
 	if (isKingAlive()) {
 		Position kingPosition;
 		if (color_ == white)
@@ -125,13 +125,13 @@ bool Piece::isDoingCheck() {
 	return true;
 }
 
-bool Piece::isKingAlive() const {
+bool model::Piece::isKingAlive() const {
 	if (allPieces_["BK1"] != nullptr && allPieces_["WK1"] != nullptr)
 		return true;
 	return false;
 }
 
-bool Piece::isRemovingCheck(const Position& position) {
+bool model::Piece::isRemovingCheck(const Position& position) {
 	if (isKingAlive()) {
 		Position piecePosition = position_, kingPosition;
 		Piece* pieceEaten = nullptr;
@@ -178,7 +178,7 @@ bool Piece::isRemovingCheck(const Position& position) {
 	return false;
 }
 
-AddMoveState Piece::addMove(const Position& position) {
+model::AddMoveState model::Piece::addMove(const Position& position) {
 	if (position != position_) {
 		if (position.x >= 'a' && position.x <= 'h' && position.y <= '8' && position.y >= '1') {
 			if (atAlly(position))
@@ -192,7 +192,7 @@ AddMoveState Piece::addMove(const Position& position) {
 	return stop;
 }
 
-void Piece::addDirection(int iterateX, int iterateY, iter::impl::Range<int> range) {
+void model::Piece::addDirection(int iterateX, int iterateY, iter::impl::Range<int> range) {
 	bool valid = true;
 	Position test;
 
@@ -205,11 +205,11 @@ void Piece::addDirection(int iterateX, int iterateY, iter::impl::Range<int> rang
 	}
 }
 
-void Piece::cancelMove() {
+void model::Piece::cancelMove() {
 	position_ = lastPosition_;
 }
 
-bool Piece::atAlly(const Position& position) const {
+bool model::Piece::atAlly(const Position& position) const {
 	for (auto& [key, value] : allPieces_) {
 		if (value->getPosition() == position && value->getColor() == color_)
 			return true;
@@ -217,7 +217,7 @@ bool Piece::atAlly(const Position& position) const {
 	return false;
 }
 
-bool Piece::atEnemy(const Position& position) const {
+bool model::Piece::atEnemy(const Position& position) const {
 	for (auto& [key, value] : allPieces_) {
 		if (value->getPosition() == position && value->getColor() != color_)
 			return true;
@@ -225,9 +225,39 @@ bool Piece::atEnemy(const Position& position) const {
 	return false;
 }
 
-King::King(const PieceColor& color, const Position& position) : Piece(color, 'K', position){}
+list<model::King*> model::King::instanceList_ = {};
 
-void King::checkPossibility() {
+model::King* model::King::getInstance(const PieceColor& color, const Position& position) {
+	King* instance = nullptr;
+	if (instanceList_.size() < 2) {
+		if (instanceList_.size() == 0) {
+			instance = new King(color, position);
+			instanceList_.push_back(instance);
+		}
+		else if(instanceList_.front()->color_ != color) {
+			instance = new King(color, position);
+			instanceList_.push_back(instance);
+		}
+	}
+	return instanceList_.back();
+}
+
+model::King::~King() {
+	if (instanceList_.size()) {
+		King* toDelete = nullptr;
+
+		for (auto it : instanceList_) {
+			if (it == this) {
+				toDelete = it;
+			}
+		}
+		instanceList_.remove(toDelete);
+	}
+}
+
+model::King::King(const PieceColor& color, const Position& position) : Piece(color, 'K', position){}
+
+void model::King::checkPossibility() {
 	possibility_.clear();
 	list<Position> possibility;
 	for (int x : iter::range(-1, 2)) {
@@ -240,9 +270,9 @@ void King::checkPossibility() {
 	}
 }
 
-Queen::Queen(const PieceColor& color, const Position& position) : Piece(color, 'Q', position) {}
+model::Queen::Queen(const PieceColor& color, const Position& position) : Piece(color, 'Q', position) {}
 
-void Queen::checkPossibility() {
+void model::Queen::checkPossibility() {
 	possibility_.clear();
 	addDirection(1, 1, iter::range(1, 8));
 	addDirection(-1, 1, iter::range(1, 8));
@@ -254,9 +284,9 @@ void Queen::checkPossibility() {
 	addDirection(0, -1, iter::range(1, 8));
 }
 
-Knight::Knight(const PieceColor& color, const Position& position) : Piece(color, 'N', position) {}
+model::Knight::Knight(const PieceColor& color, const Position& position) : Piece(color, 'N', position) {}
 
-void Knight::checkPossibility() {
+void model::Knight::checkPossibility() {
 	possibility_.clear();
 	list<Position> possibility;
 	for (int x : iter::range(-2, 3)) {
@@ -269,9 +299,9 @@ void Knight::checkPossibility() {
 	}
 }
 
-Bishop::Bishop(const PieceColor& color, const Position& position) : Piece(color, 'B', position) {}
+model::Bishop::Bishop(const PieceColor& color, const Position& position) : Piece(color, 'B', position) {}
 
-void Bishop::checkPossibility() {
+void model::Bishop::checkPossibility() {
 	possibility_.clear();
 	addDirection(1, 1, iter::range(1, 8));
 	addDirection(-1, 1, iter::range(1, 8));
@@ -279,9 +309,9 @@ void Bishop::checkPossibility() {
 	addDirection(-1, -1, iter::range(1, 8));
 }
 
-Rook::Rook(const PieceColor& color, const Position& position) : Piece(color, 'R', position) {}
+model::Rook::Rook(const PieceColor& color, const Position& position) : Piece(color, 'R', position) {}
 
-void Rook::checkPossibility() {
+void model::Rook::checkPossibility() {
 	possibility_.clear();
 	addDirection(1, 0, iter::range(1, 8));
 	addDirection(-1, 0, iter::range(1, 8));
@@ -289,9 +319,9 @@ void Rook::checkPossibility() {
 	addDirection(0, -1, iter::range(1, 8));
 }
 
-Pawn::Pawn(const PieceColor& color, const Position& position) : Piece(color, 'P', position) {}
+model::Pawn::Pawn(const PieceColor& color, const Position& position) : Piece(color, 'P', position) {}
 
-void Pawn::checkPossibility() {
+void model::Pawn::checkPossibility() {
 	possibility_.clear();
 	Position test;
 	char direction = 1;

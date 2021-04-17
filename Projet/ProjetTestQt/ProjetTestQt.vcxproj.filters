@@ -57,11 +57,11 @@
     <QtMoc Include="Chess.hpp">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="Game.hpp">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Game.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="History.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

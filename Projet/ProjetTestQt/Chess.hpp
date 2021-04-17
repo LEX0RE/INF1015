@@ -9,6 +9,7 @@
 #include <QColor>
 #include <QObject>
 #pragma pop()
+#include "Game.hpp"
 
 class PieceView : public QGraphicsWidget {
 	Q_OBJECT
@@ -36,11 +37,15 @@ private:
 };
 
 
-class ChessSceneView : public QGraphicsScene {
+class ChessScene : public QGraphicsScene {
+	Q_OBJECT
+
 public:
-	ChessSceneView(QGraphicsView* parent = nullptr);
+	ChessScene(QGraphicsView* parent = nullptr);
+	~ChessScene();
 	//static void addHistoryMove(QString mouvement);
 private:
+	model::Game* game_;
 	//static QListWidget* history_;
 };
 
@@ -49,9 +54,12 @@ class BoardView : public QGraphicsWidget {
 	Q_OBJECT
 public:
 	BoardView(QGraphicsItem* parent = nullptr);
-	void reloadPiece();
+public slots:
+	void reloadPiece(std::map<std::string, model::Piece*> pieceMap);
 private:
 	QGraphicsGridLayout* grid_;
+
+	void clearPieces();
 };
 
 
@@ -63,10 +71,9 @@ public:
 	void lowlight();
 	void addPiece(PieceView* piece);
 	void removePiece();
-protected slots:
 	void mousePressEvent(QGraphicsSceneMouseEvent* event)  override;
 signals:
-	void pieceWasClicked();
+	void click(const model::Position& position);
 private:
 	PieceView* piece_;
 	//PositioN position_;		-> pourrait se faire avec les lignes et les colonnes de la grille

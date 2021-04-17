@@ -15,107 +15,113 @@
 
 // Image au lien suivant : https://pixabay.com/fr/vectors/d-%C3%A9checs-pi%C3%A8ces-ensemble-symboles-26774/
 
-enum PieceColor{white, black};
+namespace model {
 
-enum AddMoveState{stop, add};
+	enum PieceColor { white, black };
 
-struct Position {
-	unsigned char x, y;
-	Position() = default;
-	Position(unsigned char x, unsigned char y);
-	Position(std::string name);
+	enum AddMoveState { stop, add };
 
-	std::string name();
-	bool operator==(Position autre) const;
-	bool operator<(Position autre) const;
-};
+	struct Position {
+		unsigned char x, y;
+		Position() = default;
+		Position(unsigned char x, unsigned char y);
+		Position(std::string name);
 
-class Piece : public QObject {
-	Q_OBJECT
+		std::string name();
+		bool operator==(Position autre) const;
+		bool operator<(Position autre) const;
+	};
 
-public:
-	Piece(const PieceColor& color, const unsigned char& type, const Position& position);
-	~Piece();
+	class Piece : public QObject {
+		Q_OBJECT
 
-	std::string getName() const;
-	Position getPosition() const;
-	PieceColor getColor() const;
+	public:
+		Piece(const PieceColor& color, const unsigned char& type, const Position& position);
+		~Piece();
 
-	static void generatePossibility();
-	std::list<Position> getPossibility();
+		std::string getName() const;
+		Position getPosition() const;
+		PieceColor getColor() const;
 
-	void cancelMove();
-	bool movePiece(const Position& position);
+		static void generatePossibility();
+		std::list<Position> getPossibility();
 
-protected:
-	PieceColor color_;
-	Position position_, lastPosition_;
-	std::list<Position> possibility_;
-	std::string name_;
-	static std::map<std::string, Piece*> allPieces_;
+		void cancelMove();
+		bool movePiece(const Position& position);
 
-	virtual void checkPossibility() = 0;
+	protected:
+		PieceColor color_;
+		Position position_, lastPosition_;
+		std::list<Position> possibility_;
+		std::string name_;
+		static std::map<std::string, Piece*> allPieces_;
 
-	void removeCheckSelfPossibility();
-	bool isKingAlive() const;
-	bool isDoingCheck();
-	bool isRemovingCheck(const Position& position);
-	AddMoveState addMove(const Position& position);
-	void addDirection(int iterateX, int iterateY, iter::impl::Range<int> range);
-	bool atAlly(const Position& position) const;
-	bool atEnemy(const Position& position) const;
-};
+		virtual void checkPossibility() = 0;
 
-class King : public Piece {
-	Q_OBJECT
+		void removeCheckSelfPossibility();
+		bool isKingAlive() const;
+		bool isDoingCheck();
+		bool isRemovingCheck(const Position& position);
+		AddMoveState addMove(const Position& position);
+		void addDirection(int iterateX, int iterateY, iter::impl::Range<int> range);
+		bool atAlly(const Position& position) const;
+		bool atEnemy(const Position& position) const;
+	};
 
-public:
-	King(const PieceColor& color, const Position& position);
-private:
-	void checkPossibility() override;
-};
+	class King : public Piece {
+		Q_OBJECT
 
-class Queen : public Piece {
-	Q_OBJECT
+	public:
+		static King* getInstance(const PieceColor& color, const Position& position);
+		~King();
+	private:
+		static std::list<King*> instanceList_;
+		King(const PieceColor& color, const Position& position);
+		void checkPossibility() override;
+	};
 
-public:
-	Queen(const PieceColor& color, const Position& position);
-private:
-	void checkPossibility() override;
-};
+	class Queen : public Piece {
+		Q_OBJECT
 
-class Knight : public Piece {
-	Q_OBJECT
+	public:
+		Queen(const PieceColor& color, const Position& position);
+	private:
+		void checkPossibility() override;
+	};
 
-public:
-	Knight(const PieceColor& color, const Position& position);
-private:
-	void checkPossibility() override;
-};
+	class Knight : public Piece {
+		Q_OBJECT
 
-class Bishop : public Piece {
-	Q_OBJECT
+	public:
+		Knight(const PieceColor& color, const Position& position);
+	private:
+		void checkPossibility() override;
+	};
 
-public:
-	Bishop(const PieceColor& color, const Position& position);
-private:
-	void checkPossibility() override;
-};
+	class Bishop : public Piece {
+		Q_OBJECT
 
-class Rook : public Piece {
-	Q_OBJECT
+	public:
+		Bishop(const PieceColor& color, const Position& position);
+	private:
+		void checkPossibility() override;
+	};
 
-public:
-	Rook(const PieceColor& color, const Position& position);
-private:
-	void checkPossibility() override;
-};
+	class Rook : public Piece {
+		Q_OBJECT
 
-class Pawn : public Piece {
-	Q_OBJECT
+	public:
+		Rook(const PieceColor& color, const Position& position);
+	private:
+		void checkPossibility() override;
+	};
 
-public:
-	Pawn(const PieceColor& color, const Position& position);
-private:
-	void checkPossibility() override;
-};
+	class Pawn : public Piece {
+		Q_OBJECT
+
+	public:
+		Pawn(const PieceColor& color, const Position& position);
+	private:
+		void checkPossibility() override;
+	};
+}

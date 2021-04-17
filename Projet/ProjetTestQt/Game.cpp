@@ -10,17 +10,17 @@
 #include <stdlib.h>
 #include "Game.hpp"
 
-Game::Game() {
+model::Game::Game() {
 	pieceMap_ = {};
 	selected_ = nullptr;
 	turn_ = white;
 }
 
-Game::~Game() {
+model::Game::~Game() {
 	clearAllPieces();
 }
 
-bool Game::selectPiece(Piece* selected) {
+bool model::Game::selectPiece(Piece* selected) {
 	if (selected_ != selected && selected->getColor() == turn_) {
 		selected_ = selected;
 		return true;
@@ -31,9 +31,9 @@ bool Game::selectPiece(Piece* selected) {
 	}
 }
 
-std::map<std::string, Piece*> Game::getPieceMap() const { return pieceMap_; }
+std::map<std::string, model::Piece*> model::Game::getPieceMap() const { return pieceMap_; }
 
-bool Game::addPiece(const std::string specification) {
+bool model::Game::addPiece(const std::string specification) {
 	if (specification.size() == 4) {
 		PieceColor color;
 		Position position;
@@ -74,11 +74,13 @@ bool Game::addPiece(const std::string specification) {
 	return false;
 }
 
-bool Game::addPiece(const PieceColor& color, const unsigned char& type, const Position& position) {
+bool model::Game::addPiece(const PieceColor& color,
+													 const unsigned char& type, 
+													 const Position& position) {
 	Piece* piece = nullptr;
 	switch (type) {
 		case 'K':
-			piece = new King(color, position);
+			piece = King::getInstance(color, position);
 			break;
 		case 'Q':
 			piece = new Queen(color, position);
@@ -102,20 +104,20 @@ bool Game::addPiece(const PieceColor& color, const unsigned char& type, const Po
 	return true;
 }
 
-void Game::removePiece(Piece* piece) {
+void model::Game::removePiece(Piece* piece) {
 	if (piece != nullptr) {
 		pieceMap_.erase(piece->getName());
 		delete piece;
 	}
 }
 
-void Game::clearAllPieces() {
+void model::Game::clearAllPieces() {
 	for (auto& [key, value] : pieceMap_)
 		delete value;
 	pieceMap_.clear();
 }
 
-Piece* Game::getPiece(const Position position) const {
+model::Piece* model::Game::getPiece(const model::Position position) const {
 	for (auto& [key, value] : pieceMap_) {
 		if (value->getPosition() == position)
 			return value;
@@ -123,7 +125,7 @@ Piece* Game::getPiece(const Position position) const {
 	return nullptr;
 }
 
-bool Game::action(const Position position) {
+bool model::Game::action(const model::Position position) {
 	Piece* actionPiece = getPiece(position);
 
 	if (selected_ != nullptr)
@@ -133,7 +135,7 @@ bool Game::action(const Position position) {
 	return false;
 }
 
-bool Game::movePiece(const Position position) {
+bool model::Game::movePiece(const Position position) {
 	Position lastPosition = selected_->getPosition(), newPosition = position;
 	Piece* pieceEaten = getPiece(newPosition);
 
@@ -161,7 +163,7 @@ bool Game::movePiece(const Position position) {
 		return false;
 }
 
-bool Game::setGame(std::list<std::string> specificationPiece) {
+bool model::Game::setGame(std::list<std::string> specificationPiece) {
 	PieceColor color = white;
 	bool valid = true;
 	Piece* temporary = nullptr;
@@ -185,10 +187,11 @@ bool Game::setGame(std::list<std::string> specificationPiece) {
 		return false;
 	}
 	Piece::generatePossibility();
+	emit updatePiece(pieceMap_);
 	return true;
 }
 
-void Game::setNewGame() {
+void model::Game::setNewGame() {
 	unsigned char color = 'W';
 	std::string backline = "RNBQKBNR";
 	Position position("a1");
