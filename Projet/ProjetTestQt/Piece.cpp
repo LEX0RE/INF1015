@@ -9,12 +9,24 @@
 #pragma warning(push, 0) // Sinon Qt fait des avertissements à /W4.
 #include <QPainter>
 #pragma pop()
-
+#include <iostream>
 #include "Piece.hpp"
 #include "Game.hpp"
 
 using iter::range;
 using namespace std;
+
+class TooManyKings : public logic_error
+{
+public:
+	using logic_error::logic_error;
+};
+
+class TwoSameColorKings : public logic_error
+{
+public:
+	using logic_error::logic_error;
+};
 
 model::Position::Position(unsigned char x, unsigned char y) {
 	this->x = x;
@@ -229,15 +241,29 @@ list<model::King*> model::King::instanceList_ = {};
 
 model::King* model::King::getInstance(const PieceColor& color, const Position& position) {
 	King* instance = nullptr;
-	if (instanceList_.size() < 2) {
-		if (instanceList_.size() == 0) {
-			instance = new King(color, position);
-			instanceList_.push_back(instance);
+	try {
+		if (instanceList_.size() < 2) {
+			if (instanceList_.size() == 0) {
+				instance = new King(color, position);
+				instanceList_.push_back(instance);
+			}
+			else if (instanceList_.front()->color_ != color) {
+				instance = new King(color, position);
+				instanceList_.push_back(instance);
+			}
+			else {
+				throw TwoSameColorKings("Two Kings of the same color have been created");
+			}
 		}
-		else if(instanceList_.front()->color_ != color) {
-			instance = new King(color, position);
-			instanceList_.push_back(instance);
+		else {
+			throw TooManyKings("Too many Kings have been created");
 		}
+	}
+	catch (TwoSameColorKings& e) {
+		std::cout << e.what() << std::endl;
+	}
+	catch (TooManyKings& e) {
+		std::cout << e.what() << std::endl;
 	}
 	return instanceList_.back();
 }

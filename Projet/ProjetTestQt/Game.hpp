@@ -29,6 +29,8 @@ namespace model {
     bool action(const Position position);
   signals:
     void updatePiece(std::map<std::string, Piece*> pieceMap);
+  signals:
+    void updatePossibility(std::list<Position> possibility);
   private:
     PieceColor turn_;
     std::map<std::string, Piece*> pieceMap_;

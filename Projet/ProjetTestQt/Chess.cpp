@@ -3,73 +3,99 @@
 #include "include/cppitertools/range.hpp"
 using namespace iter;
 
-WindowView::WindowView() {
+view::WindowView::WindowView() {
 	setStyleSheet("background-color:black;");
 	setWindowTitle("Chess");
 	setScene(new ChessScene());
 	QGraphicsView::fitInView(scene()->sceneRect(), Qt::KeepAspectRatio);
 }
 
-WindowView::~WindowView() {
+view::WindowView::~WindowView() {
 	QGraphicsScene* toDelete = scene();
 	delete toDelete;
 }
 
-void WindowView::setNextScene(QGraphicsScene* scene) {
+void view::WindowView::setNextScene(QGraphicsScene* scene) {
 	if (scene != nullptr) {
 		delete nextScene_;
 		nextScene_ = scene;
 	}
 }
 
-void WindowView::changeScene() {
+void view::WindowView::changeScene() {
 	if (nextScene_ != nullptr)
 		setScene(nextScene_);
-	//emit sceneChanged();
 }
 
-ChessScene::ChessScene(QGraphicsView* parent) : QGraphicsScene(parent) {
-	BoardView* chessBoard = new BoardView();
-	addItem(chessBoard);
+view::ChessScene::ChessScene(QGraphicsView* parent) : QGraphicsScene(parent) {
+	chessBoard_ = new BoardView();
+	addItem(chessBoard_);
 	game_ = new model::Game();
-	connect(game_, &model::Game::updatePiece, chessBoard, &BoardView::reloadPiece);
+	connect(game_, &model::Game::updatePiece, chessBoard_, &BoardView::reloadPiece);
+	connect(game_, &model::Game::updatePossibility, chessBoard_, &BoardView::reloadPossibility);
 	game_->setNewGame();
+
+	for (auto it : chessBoard_->getList())
+		connect(it, &SquareView::click, game_, &model::Game::action);
 }
 
-ChessScene::~ChessScene() {
+view::ChessScene::~ChessScene() {
 	delete game_;
 }
 
-BoardView::BoardView(QGraphicsItem* parent) : QGraphicsWidget(parent) {
+view::BoardView::BoardView(QGraphicsItem* parent) : QGraphicsWidget(parent) {
+	highlightSquareList_ = {};
 	QRectF rect(0, 0, SQUARE_SIZE * 8, SQUARE_SIZE * 8);
 	setGeometry(rect);
 	grid_ = new QGraphicsGridLayout();
 
 	for (unsigned int y : range(8)) {
 		for (unsigned int x : range(8)) {
+			SquareView* square = nullptr;
 			if ((x + y) % 2)
-				grid_->addItem(new SquareView(Qt::cyan), y, x);
+				square = new SquareView(Qt::blue, QPoint(x, y)), y, x;
 			else
-				grid_->addItem(new SquareView(Qt::blue), y, x);
+				square = new SquareView(Qt::cyan, QPoint(x, y)), y, x;
+			grid_->addItem(square, y, x);
+			squareList_.push_back(square);
 		}
 	}
 	setLayout(grid_);
 }
 
-
-SquareView::SquareView(Qt::GlobalColor color, QGraphicsItem* parent) : QGraphicsWidget(parent) {
-	
-	piece_ = nullptr;
-	QRectF rect(0, 0, SQUARE_SIZE, SQUARE_SIZE);
-	auto square = new QGraphicsRectItem(rect, this);
-	square->setBrush(color);
-	square->setParentItem(this);
-	setOwnedByLayout(true);
-	
+void view::BoardView::reloadPossibility(std::list<model::Position> possibility) {
+	if (highlightSquareList_.size() > 0) {
+		for (auto square : highlightSquareList_)
+			square->lowlight();
+		highlightSquareList_.clear();
+	}
+	else {
+		for (auto position : possibility) {
+			unsigned int x = position.x - 'a';
+			unsigned int y = '8' - position.y;
+			SquareView* square = dynamic_cast<SquareView*>(grid_->itemAt(y, x));
+			if (square != nullptr)
+				square->highlight(Qt::green);
+			highlightSquareList_.push_back(square);
+		}
+	}
 }
 
+std::list<view::SquareView*> view::BoardView::getList() const { return squareList_; }
 
-void SquareView::addPiece(PieceView* piece) {
+view::SquareView::SquareView(Qt::GlobalColor color, QPoint position, 
+														 QGraphicsItem* parent) : QGraphicsWidget(parent) {
+	color_ = color;
+	position_ = position;
+	piece_ = nullptr;
+	QRectF rect(0, 0, SQUARE_SIZE, SQUARE_SIZE);
+	square_ = new QGraphicsRectItem(rect, this);
+	square_->setBrush(color_);
+	square_->setParentItem(this);
+	setOwnedByLayout(true);
+}
+
+void view::SquareView::addPiece(PieceView* piece) {
 
 	if (piece_ != nullptr)
 		delete piece_;
@@ -79,52 +105,61 @@ void SquareView::addPiece(PieceView* piece) {
 
 }
 
-void SquareView::removePiece() {
+void view::SquareView::removePiece() {
 	if (piece_ != nullptr)
 		delete piece_;
 
 	piece_ = nullptr;
 }
 
+void view::SquareView::highlight(Qt::GlobalColor color) {
+	square_->setBrush(color);
+}
 
-void BoardView::reloadPiece(std::map<std::string, model::Piece*> pieceMap) {
-	bool found = false;
+void view::SquareView::lowlight() {
+	square_->setBrush(color_);
+}
 
+
+void view::BoardView::reloadPiece(std::map<std::string, model::Piece*> pieceMap) {
 	clearPieces();
-	for (auto& [key, value] : pieceMap) {
-		unsigned int x = value->getPosition().x - 'a' ;
-		unsigned int y = value->getPosition().y - '1';
-		SquareView* square = dynamic_cast<SquareView*>(grid_->itemAt(y, x));
-		if (square != nullptr) {
-			 bool color = key[0] == 'W';
-			 unsigned char type = key[1];
-			switch (type) {
-			case 'K':
-				square->addPiece(new KingView(color));
-				break;
-			case 'Q':
-				square->addPiece(new QueenView(color));
-				break;
-			case 'B':
-				square->addPiece(new BishopView(color));
-				break;
-			case 'N':
-				square->addPiece(new KnightView(color));
-				break;
-			case 'R':
-				square->addPiece(new RookView(color));
-				break;
-			case 'P':
-				square->addPiece(new PawnView(color));
-				break;
-			default:
-				break;
+
+	if (pieceMap.size()) {
+		for (auto& [key, value] : pieceMap) {
+			unsigned int x = value->getPosition().x - 'a';
+			unsigned int y = '8' - value->getPosition().y;
+			SquareView* square = dynamic_cast<SquareView*>(grid_->itemAt(y, x));
+			if (square != nullptr) {
+				bool color = key[0] == 'W';
+				unsigned char type = key[1];
+				switch (type) {
+				case 'K':
+					square->addPiece(new KingView(color));
+					break;
+				case 'Q':
+					square->addPiece(new QueenView(color));
+					break;
+				case 'B':
+					square->addPiece(new BishopView(color));
+					break;
+				case 'N':
+					square->addPiece(new KnightView(color));
+					break;
+				case 'R':
+					square->addPiece(new RookView(color));
+					break;
+				case 'P':
+					square->addPiece(new PawnView(color));
+					break;
+				default:
+					break;
+				}
 			}
 		}
 	}
 }
 
-void BoardView::clearPieces() {
+void view::BoardView::clearPieces() {
 	for (auto y : range(8)) {
 		for (auto x : range(8)) {
 			SquareView* square = dynamic_cast<SquareView*>(grid_->itemAt(y, x));
@@ -134,14 +169,14 @@ void BoardView::clearPieces() {
 	}
 }
 
-
-void SquareView::mousePressEvent(QGraphicsSceneMouseEvent* event) {
-	//emit click(position);
+void view::SquareView::mousePressEvent(QGraphicsSceneMouseEvent* event) {
+	model::Position position = model::Position('a' + position_.x(), '8' - position_.y());
+	emit click(position);
 }
 
-PieceView::PieceView(bool color, QGraphicsItem* parent) : QGraphicsWidget(parent) {}
+view::PieceView::PieceView(bool color, QGraphicsItem* parent) : QGraphicsWidget(parent) {}
 
-void PieceView::setPicture(const QRect& pictureRect) {
+void view::PieceView::setPicture(const QRect& pictureRect) {
 	QImage image("pieces.png");
 	QTransform trans;
 	image = image.copy(pictureRect).transformed(trans.translate(-pictureRect.x(), -pictureRect.y()));
@@ -149,7 +184,7 @@ void PieceView::setPicture(const QRect& pictureRect) {
 }
 
 
-KingView::KingView(bool color, QGraphicsItem* parent) : PieceView(color, parent) {
+view::KingView::KingView(bool color, QGraphicsItem* parent) : PieceView(color, parent) {
 
 	if (color == false)
 		setPicture(QRect(-15, 148, SQUARE_SIZE, SQUARE_SIZE));
@@ -158,7 +193,7 @@ KingView::KingView(bool color, QGraphicsItem* parent) : PieceView(color, parent)
 
 }
 
-QueenView::QueenView(bool color, QGraphicsItem* parent) : PieceView(color, parent) {
+view::QueenView::QueenView(bool color, QGraphicsItem* parent) : PieceView(color, parent) {
 
 	if (color == false)
 		setPicture(QRect(221, 149, SQUARE_SIZE, SQUARE_SIZE));
@@ -167,7 +202,7 @@ QueenView::QueenView(bool color, QGraphicsItem* parent) : PieceView(color, paren
 
 }
 
-BishopView::BishopView(bool color, QGraphicsItem* parent) : PieceView(color, parent) {
+view::BishopView::BishopView(bool color, QGraphicsItem* parent) : PieceView(color, parent) {
 
 	if (color == false)
 		setPicture(QRect(695, 149, SQUARE_SIZE, SQUARE_SIZE));
@@ -176,7 +211,7 @@ BishopView::BishopView(bool color, QGraphicsItem* parent) : PieceView(color, par
 
 }
 
-KnightView::KnightView(bool color, QGraphicsItem* parent) : PieceView(color, parent) {
+view::KnightView::KnightView(bool color, QGraphicsItem* parent) : PieceView(color, parent) {
 
 	if (color == false)
 		setPicture(QRect(932, 154, SQUARE_SIZE, SQUARE_SIZE));
@@ -185,7 +220,7 @@ KnightView::KnightView(bool color, QGraphicsItem* parent) : PieceView(color, par
 
 }
 
-RookView::RookView(bool color, QGraphicsItem* parent) : PieceView(color, parent) {
+view::RookView::RookView(bool color, QGraphicsItem* parent) : PieceView(color, parent) {
 
 	if (color == false)
 		setPicture(QRect(459, 154, SQUARE_SIZE, SQUARE_SIZE));
@@ -194,7 +229,7 @@ RookView::RookView(bool color, QGraphicsItem* parent) : PieceView(color, parent)
 
 }
 
-PawnView::PawnView(bool color, QGraphicsItem* parent) : PieceView(color, parent) {
+view::PawnView::PawnView(bool color, QGraphicsItem* parent) : PieceView(color, parent) {
 
 	if (color == false)
 		setPicture(QRect(1168, 154, SQUARE_SIZE, SQUARE_SIZE));

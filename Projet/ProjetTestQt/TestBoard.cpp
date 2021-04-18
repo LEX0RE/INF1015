@@ -27,6 +27,10 @@ TEST(Game, initialisation) {
 	EXPECT_EQ(game->setGame(positioning), false);
 	positioning = { "WPh1", "BPh1", "WKe1", "BKe8" };
 	EXPECT_EQ(game->setGame(positioning), false);
+	positioning = { "WKe1", "BKe8", "WKe4" };
+	EXPECT_EQ(game->setGame(positioning), true);
+	delete game;
+	game = new model::Game();
 	positioning = { "WPh2", "BQb4", "WKe1", "BKe8" };
 	EXPECT_EQ(game->setGame(positioning), true);
 	delete game;

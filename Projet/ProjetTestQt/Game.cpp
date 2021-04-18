@@ -23,10 +23,12 @@ model::Game::~Game() {
 bool model::Game::selectPiece(Piece* selected) {
 	if (selected_ != selected && selected->getColor() == turn_) {
 		selected_ = selected;
+		emit updatePossibility(selected_->getPossibility());
 		return true;
 	}
 	else {
 		selected_ = nullptr;
+		emit updatePossibility(std::list<Position>());
 		return false;
 	}
 }
@@ -151,16 +153,19 @@ bool model::Game::movePiece(const Position position) {
 		else
 			mouvement += "-";
 		mouvement += newPosition.name().c_str();
-		selected_ = nullptr;
+		selectPiece(selected_);
 		Piece::generatePossibility();
 		if (turn_ == white)
 			turn_ = black;
 		else
 			turn_ = white;
+		emit updatePiece(pieceMap_);
 		return true;
 	}
-	else
+	else {
+		selectPiece(selected_);
 		return false;
+	}
 }
 
 bool model::Game::setGame(std::list<std::string> specificationPiece) {
@@ -195,24 +200,27 @@ void model::Game::setNewGame() {
 	unsigned char color = 'W';
 	std::string backline = "RNBQKBNR";
 	Position position("a1");
-	std::string tag = "";
+	std::string newKey = "";
+	unsigned int colorChange = 4, blackBackLine = 7, blackFrontLine = 6, 
+							 whiteBackLine = 0, whiteFrontLine = 1;
+
 	for (unsigned int y : iter::range(8)) {
-		if (y == 4)
+		if (y == colorChange)
 			color = 'B';
 		for (unsigned int x : iter::range(8)) {
-			tag = "";
-			position = Position((unsigned char)('a' + x), (unsigned char)('8' - y));
-			if (y <= 1 || y >= 6) {
-				tag = color;
-				if (y == 0 || y == 7)
-					tag += backline[x];
-				else {
-					tag += 'P';
-				tag += position.name();
-				addPiece(tag);
-				}
+			newKey = "";
+			position = Position((unsigned char)('a' + x), (unsigned char)('1' + y));
+			if (y <= whiteFrontLine || y >= blackFrontLine) {
+				newKey = color;
+				if (y == whiteBackLine || y == blackBackLine)
+					newKey += backline[x];
+				else
+					newKey += 'P';
+				newKey += position.name();
+				addPiece(newKey);
 			}
 		}
 	}
 	Piece::generatePossibility();
+	emit updatePiece(pieceMap_);
 }
