@@ -81,19 +81,25 @@ TEST(Game, mouvements) {
 	game->setGame(positioning);
 	game->action(model::Position("d5"));
 	EXPECT_EQ(game->action(model::Position("e5")), false);
+	game->action(model::Position("d5"));
 	EXPECT_EQ(game->action(model::Position("e6")), true);
 	game->action(model::Position("e4"));
 	EXPECT_EQ(game->action(model::Position("d4")), false);
+	game->action(model::Position("e4"));
 	EXPECT_EQ(game->action(model::Position("f4")), true);
 	game->action(model::Position("b2"));
 	EXPECT_EQ(game->action(model::Position("e5")), false);
+	game->action(model::Position("b2"));
 	EXPECT_EQ(game->action(model::Position("f2")), true);
 	game->action(model::Position("c5"));
 	EXPECT_EQ(game->action(model::Position("a7")), false);
+	game->action(model::Position("c5"));
 	EXPECT_EQ(game->action(model::Position("f2")), true);
 	game->action(model::Position("e5"));
 	EXPECT_EQ(game->action(model::Position("f4")), false);
+	game->action(model::Position("e5"));
 	EXPECT_EQ(game->action(model::Position("f3")), true);
+	game->action(model::Position("e5"));
 	EXPECT_EQ(game->action(model::Position("e5")), false);
 	delete game;
 }
