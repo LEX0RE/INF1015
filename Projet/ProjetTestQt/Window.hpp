@@ -14,11 +14,11 @@
 #pragma pop()
 
 namespace view {
-	class WindowView : public QGraphicsView {
+	class Window : public QGraphicsView {
 		Q_OBJECT
 	public:
-		WindowView();
-		virtual ~WindowView();
+		Window();
+		virtual ~Window();
 		void setNextScene(QGraphicsScene* scene);
 	public slots:
 		void changeScene();

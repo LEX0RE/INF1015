@@ -17,8 +17,8 @@ view::ChoiceScene::ChoiceScene(QObject* parent) : QGraphicsScene(parent) {
 	QPushButton* classicButton = new QPushButton(QString("Classic"));
 	QPushButton* FischerandomButton = new QPushButton(QString("Fischerandom"));
 
-	connect(classicButton, &QPushButton::clicked, dynamic_cast<WindowView*>(parent), &view::WindowView::changeScene);
-	connect(FischerandomButton, &QPushButton::clicked, dynamic_cast<WindowView*>(parent), &view::WindowView::changeScene);
+	connect(classicButton, &QPushButton::clicked, dynamic_cast<Window*>(parent), &view::Window::changeScene);
+	connect(FischerandomButton, &QPushButton::clicked, dynamic_cast<Window*>(parent), &view::Window::changeScene);
 
 	QGroupBox* choiceBox = new QGroupBox("Board setup");
 	choiceBox->setAlignment(Qt::AlignCenter);

@@ -46,7 +46,6 @@ namespace model {
 		static void generatePossibility();
 		std::list<Position> getPossibility();
 
-		void cancelMove();
 		bool movePiece(const Position& position);
 
 	protected:
@@ -59,7 +58,6 @@ namespace model {
 		virtual void checkPossibility() = 0;
 
 		void removeCheckSelfPossibility();
-		bool isKingAlive() const;
 		bool isDoingCheck();
 		bool isRemovingCheck(const Position& position);
 		AddMoveState addMove(const Position& position);
@@ -72,7 +70,7 @@ namespace model {
 		Q_OBJECT
 
 	public:
-		static King* getInstance(const PieceColor& color, const Position& position);
+		static King* getInstance(const PieceColor& color, const Position& position = Position("a1"));
 		~King();
 	private:
 		static std::list<King*> instanceList_;

@@ -68,9 +68,11 @@ bool model::Game::addPiece(const std::string specification) {
 			return false;
 		}
 
-		for (auto& [key, value] : pieceMap_) {
-			if (value->getPosition() == position)
-				return false;
+		if (pieceMap_.size() > 0) {
+			for (auto& [key, value] : pieceMap_) {
+				if (value->getPosition() == position)
+					return false;
+			}
 		}
 
 		return addPiece(color, type, position);
@@ -116,15 +118,19 @@ void model::Game::removePiece(Piece* piece) {
 }
 
 void model::Game::clearAllPieces() {
-	for (auto& [key, value] : pieceMap_)
-		delete value;
+	if (pieceMap_.size() > 0) {
+		for (auto& [key, value] : pieceMap_)
+			delete value;
+	}
 	pieceMap_.clear();
 }
 
 model::Piece* model::Game::getPiece(const model::Position position) const {
-	for (auto& [key, value] : pieceMap_) {
-		if (value->getPosition() == position)
-			return value;
+	if (pieceMap_.size() > 0) {
+		for (auto& [key, value] : pieceMap_) {
+			if (value->getPosition() == position)
+				return value;
+		}
 	}
 	return nullptr;
 }
@@ -144,17 +150,9 @@ bool model::Game::movePiece(const Position position) {
 	Piece* pieceEaten = getPiece(newPosition);
 
 	if (selected_->movePiece(position)) {
-		QString mouvement = "";
-		if (selected_->getName()[1] != 'P')
-			mouvement += selected_->getName()[1];
-		mouvement += lastPosition.name().c_str();
-		if (pieceEaten != nullptr) {
+		if (pieceEaten != nullptr)
 			removePiece(pieceEaten);
-			mouvement += "x";
-		}
-		else
-			mouvement += "-";
-		mouvement += newPosition.name().c_str();
+
 		selectPiece(selected_);
 		Piece::generatePossibility();
 		if (turn_ == white)
@@ -177,9 +175,11 @@ bool model::Game::setGame(std::list<std::string> specificationPiece) {
 	Position position = Position("a1");
 	std::string specification = "";
 
-	for (auto piece : specificationPiece) {
-		if (valid && addPiece(piece) == false)
-			valid = false;
+	if (specificationPiece.size() > 0) {
+		for (auto piece : specificationPiece) {
+			if (valid && addPiece(piece) == false)
+				valid = false;
+		}
 	}
 
 	if ((pieceMap_.find("WK1") == pieceMap_.end()) || (pieceMap_.find("BK1") == pieceMap_.end()))

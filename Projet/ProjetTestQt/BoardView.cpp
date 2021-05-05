@@ -10,8 +10,7 @@
 #include "include/cppitertools/range.hpp"
 using namespace iter;
 
-view::SquareView::SquareView(Qt::GlobalColor color, QPoint position,
-	QGraphicsItem* parent) : QGraphicsWidget(parent) {
+view::SquareView::SquareView(Qt::GlobalColor color, QPoint position, QGraphicsItem* parent) : QGraphicsWidget(parent) {
 	color_ = color;
 	position_ = position;
 	piece_ = nullptr;
@@ -20,6 +19,7 @@ view::SquareView::SquareView(Qt::GlobalColor color, QPoint position,
 	square_->setBrush(color_);
 	square_->setParentItem(this);
 	setOwnedByLayout(true);
+	setGeometry(rect);
 }
 
 void view::SquareView::addPiece(std::string name) {
@@ -87,19 +87,21 @@ view::PieceView* view::SquareView::getPiece() const { return piece_; }
 
 view::BoardView::BoardView(QGraphicsItem* parent) : QGraphicsWidget(parent) {
 	highlightSquareList_ = {};
-	QRectF rect(0, 0, SQUARE_SIZE * 8, SQUARE_SIZE * 8);
-	setGeometry(rect);
-	grid_ = new QGraphicsGridLayout();
+	grid_ = new QGraphicsGridLayout(this);
+	setGeometry(QRectF(0, 0, SQUARE_SIZE * 8, SQUARE_SIZE * 8));
 
 	for (unsigned int y : range(8)) {
 		for (unsigned int x : range(8)) {
 			SquareView* square = nullptr;
 			if ((x + y) % 2)
-				square = new SquareView(Qt::blue, QPoint(x, y)), y, x;
+				square = new SquareView(Qt::blue, QPoint(x, y));
 			else
-				square = new SquareView(Qt::cyan, QPoint(x, y)), y, x;
+				square = new SquareView(Qt::cyan, QPoint(x, y));
 			grid_->addItem(square, y, x);
 			squareList_.push_back(square);
+			QRectF rect = geometry();
+			QSizeF s = size();
+
 		}
 	}
 	setLayout(grid_);
@@ -112,13 +114,15 @@ void view::BoardView::reloadPossibility(std::list<model::Position> possibility) 
 		highlightSquareList_.clear();
 	}
 	else {
-		for (auto position : possibility) {
-			unsigned int x = position.x - 'a';
-			unsigned int y = '8' - position.y;
-			SquareView* square = dynamic_cast<SquareView*>(grid_->itemAt(y, x));
-			if (square != nullptr)
-				square->highlight(Qt::green);
-			highlightSquareList_.push_back(square);
+		if (possibility.size() > 0) {
+			for (auto position : possibility) {
+				unsigned int x = position.x - 'a';
+				unsigned int y = '8' - position.y;
+				SquareView* square = dynamic_cast<SquareView*>(grid_->itemAt(y, x));
+				if (square != nullptr)
+					square->highlight(Qt::green);
+				highlightSquareList_.push_back(square);
+			}
 		}
 	}
 }
@@ -126,7 +130,7 @@ void view::BoardView::reloadPossibility(std::list<model::Position> possibility) 
 std::list<view::SquareView*> view::BoardView::getList() const { return squareList_; }
 
 void view::BoardView::reloadPiece(std::map<std::string, model::Piece*> pieceMap) {
-	if (pieceMap.size()) {
+	if (pieceMap.size() > 0) {
 		for (auto& [key, value] : pieceMap) {
 			unsigned int x = value->getPosition().x - 'a';
 			unsigned int y = '8' - value->getPosition().y;

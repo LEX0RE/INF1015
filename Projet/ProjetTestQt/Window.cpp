@@ -10,7 +10,7 @@
 #include "ChessScene.hpp"
 #include "ChoiceScene.hpp"
 
-view::WindowView::WindowView() {
+view::Window::Window() {
 	setStyleSheet("background-color:black;");
 	setWindowTitle("Chess");
 	ChoiceScene* currentScene = new ChoiceScene(this);
@@ -19,19 +19,19 @@ view::WindowView::WindowView() {
 	setNextScene(new ChessScene(this));
 }
 
-view::WindowView::~WindowView() {
+view::Window::~Window() {
 	QGraphicsScene* toDelete = scene();
 	delete toDelete;
 }
 
-void view::WindowView::setNextScene(QGraphicsScene* scene) {
+void view::Window::setNextScene(QGraphicsScene* scene) {
 	if (scene != nullptr) {
 		delete nextScene_;
 		nextScene_ = scene;
 	}
 }
 
-void view::WindowView::changeScene() {
+void view::Window::changeScene() {
 	if (nextScene_ != nullptr) {
 		setScene(nextScene_);
 		QPushButton* button = dynamic_cast<QPushButton*>(sender());
@@ -39,9 +39,7 @@ void view::WindowView::changeScene() {
 		if (button != nullptr)
 			dynamic_cast<ChessScene*>(nextScene_)->setGameConfiguration(button->text().toStdString());
 
-		QRectF rect = scene()->sceneRect();
-		rect.adjust(0, 0, -400, -400);
-		QGraphicsView::fitInView(rect, Qt::KeepAspectRatio);
-		resize(QSize(800, 800));
+		resize(QSize(1000, 800));
+		QGraphicsView::fitInView(scene()->sceneRect(), Qt::KeepAspectRatio);
 	}
 }

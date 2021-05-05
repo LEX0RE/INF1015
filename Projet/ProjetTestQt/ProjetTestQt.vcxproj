@@ -56,6 +56,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <CodeAnalysisRuleSet>NativeRecommendedRules_sansEnumClass.ruleset</CodeAnalysisRuleSet>
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
   </PropertyGroup>
@@ -116,7 +117,6 @@
     <ClCompile Include="BoardView.cpp" />
     <ClCompile Include="ChessScene.cpp" />
     <ClCompile Include="Game.cpp" />
-    <ClCompile Include="History.cpp" />
     <ClCompile Include="ChoiceScene.cpp" />
     <ClCompile Include="Piece.cpp" />
     <ClCompile Include="PieceView.cpp" />
@@ -133,7 +133,6 @@
     <QtMoc Include="ChessScene.hpp" />
     <QtMoc Include="Game.hpp" />
     <QtMoc Include="Piece.hpp" />
-    <ClInclude Include="History.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

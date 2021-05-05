@@ -84,23 +84,27 @@ model::Position model::Piece::getPosition() const { return position_; }
 
 void model::Piece::generatePossibility() {
 	bool blackCheck = false, whiteCheck = false;
-	for (auto& [key, value] : allPieces_)
-		value->checkPossibility();
+	if (allPieces_.size() > 0) {
+		for (auto& [key, value] : allPieces_)
+			value->checkPossibility();
+	}
 
-	for (auto& [key, value] : allPieces_)
-		value->removeCheckSelfPossibility();
+	if (allPieces_.size() > 0) {
+		for (auto& [key, value] : allPieces_)
+			value->removeCheckSelfPossibility();
+}
 }
 
 void model::Piece::removeCheckSelfPossibility() {
 	list<Position> toRemove;
-	if (possibility_.size() != 0) {
+	if (possibility_.size() > 0) {
 		for (auto position : possibility_) {
 			if (isRemovingCheck(position) == false) {
 				toRemove.push_back(position);
 			}
 		}
 	}
-	if (toRemove.size() != 0) {
+	if (toRemove.size() > 0) {
 		for (auto position : toRemove)
 			possibility_.remove(position);
 	}
@@ -109,59 +113,56 @@ void model::Piece::removeCheckSelfPossibility() {
 list<model::Position> model::Piece::getPossibility() { return possibility_; }
 
 bool model::Piece::movePiece(const Position& position) {
-	for (auto it : getPossibility()) {
-		if (it == position) {
-			lastPosition_ = position_;
-			position_ = position;
-			return true;
+	if (getPossibility().size() > 0) {
+		for (auto it : getPossibility()) {
+			if (it == position) {
+				lastPosition_ = position_;
+				position_ = position;
+				return true;
+			}
 		}
 	}
 	return false;
 }
 
 bool model::Piece::isDoingCheck() {
-	if (isKingAlive()) {
-		Position kingPosition;
-		if (color_ == white)
-			kingPosition = allPieces_["BK1"]->getPosition();
-		else
-			kingPosition = allPieces_["WK1"]->getPosition();
+	Position kingPosition;
+	if (color_ == white)
+		kingPosition = allPieces_["BK1"]->getPosition();
+	else
+		kingPosition = allPieces_["WK1"]->getPosition();
 
+	if (possibility_.size() > 0) {
 		for (auto it : possibility_) {
 			if (it == kingPosition) {
 				return true;
 			}
 		}
-		return false;
 	}
-	return true;
-}
-
-bool model::Piece::isKingAlive() const {
-	if (allPieces_["BK1"] != nullptr && allPieces_["WK1"] != nullptr)
-		return true;
 	return false;
 }
 
 bool model::Piece::isRemovingCheck(const Position& position) {
-	if (isKingAlive()) {
-		Position piecePosition = position_, kingPosition;
-		Piece* pieceEaten = nullptr;
-		if (allPieces_["WK1"] == this || allPieces_["BK1"] == this)
-			kingPosition = position;
-		else if (color_ == white)
-			kingPosition = allPieces_["BK1"]->getPosition();
-		else
-			kingPosition = allPieces_["WK1"]->getPosition();
+	Position piecePosition = position_, kingPosition;
+	Piece* pieceEaten = nullptr;
+	if (allPieces_["WK1"] == this || allPieces_["BK1"] == this)
+		kingPosition = position;
+	else if (color_ == white)
+		kingPosition = allPieces_["BK1"]->getPosition();
+	else
+		kingPosition = allPieces_["WK1"]->getPosition();
 
+	if (allPieces_.size() > 0) {
 		for (auto& [key, value] : allPieces_) {
 			if (value->getPosition() == position) {
 				pieceEaten = value;
 				pieceEaten->position_ = Position("z0");
 			}
 		}
-		position_ = position;
+	}
+	position_ = position;
 
+	if (allPieces_.size() > 0) {
 		for (auto& [key, value] : allPieces_) {
 			list<Position> savePosibility = move(value->possibility_);
 
@@ -180,14 +181,13 @@ bool model::Piece::isRemovingCheck(const Position& position) {
 			}
 			value->possibility_ = move(savePosibility);
 		}
-
-		if (pieceEaten != nullptr)
-			pieceEaten->position_ = position;
-
-		position_ = piecePosition;
-		return true;
 	}
-	return false;
+
+	if (pieceEaten != nullptr)
+		pieceEaten->position_ = position;
+
+	position_ = piecePosition;
+	return true;
 }
 
 model::AddMoveState model::Piece::addMove(const Position& position) {
@@ -217,22 +217,22 @@ void model::Piece::addDirection(int iterateX, int iterateY, iter::impl::Range<in
 	}
 }
 
-void model::Piece::cancelMove() {
-	position_ = lastPosition_;
-}
-
 bool model::Piece::atAlly(const Position& position) const {
-	for (auto& [key, value] : allPieces_) {
-		if (value->getPosition() == position && value->getColor() == color_)
-			return true;
+	if (allPieces_.size() > 0) {
+		for (auto& [key, value] : allPieces_) {
+			if (value->getPosition() == position && value->getColor() == color_)
+				return true;
+		}
 	}
 	return false;
 }
 
 bool model::Piece::atEnemy(const Position& position) const {
-	for (auto& [key, value] : allPieces_) {
-		if (value->getPosition() == position && value->getColor() != color_)
-			return true;
+	if (allPieces_.size() > 0) {
+		for (auto& [key, value] : allPieces_) {
+			if (value->getPosition() == position && value->getColor() != color_)
+				return true;
+		}
 	}
 	return false;
 }
@@ -269,7 +269,7 @@ model::King* model::King::getInstance(const PieceColor& color, const Position& p
 }
 
 model::King::~King() {
-	if (instanceList_.size()) {
+	if (instanceList_.size() > 0) {
 		King* toDelete = nullptr;
 
 		for (auto it : instanceList_) {

@@ -10,6 +10,7 @@
 #pragma warning(push, 0) // Sinon Qt fait des avertissements à /W4.
 #include <QGraphicsScene>
 #include <QObject>
+#include <QListWidget>
 #pragma pop()
 #include "BoardView.hpp"
 #include "Game.hpp"
