@@ -6,6 +6,7 @@
 * \date   14 avril 2021
 * Cree le 14 avril 2021
 */
+
 #pragma warning(push, 0) // Sinon Qt fait des avertissements à /W4.
 #include <QObject>
 #pragma pop()
@@ -23,13 +24,13 @@ namespace model {
     bool addPiece(const std::string specification);
     void removePiece(Piece* piece);
     void setNewGame();
+    void setFischerRandomGame();
     bool setGame(const std::list<std::string> specificationPiece);
     std::map<std::string, Piece*> getPieceMap() const;
   public slots:
     bool action(const Position position);
   signals:
     void updatePiece(std::map<std::string, Piece*> pieceMap);
-  signals:
     void updatePossibility(std::list<Position> possibility);
   private:
     PieceColor turn_;
@@ -41,5 +42,6 @@ namespace model {
     bool movePiece(const Position position);
     bool addPiece(const PieceColor& color, const unsigned char& type, const Position& position);
     void clearAllPieces();
+    void setFromBackline(std::string backline);
   };
 }

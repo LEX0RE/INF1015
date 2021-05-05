@@ -8,12 +8,14 @@
 
 #include <cppitertools/range.hpp>
 #include <stdlib.h>
+#include <time.h>
 #include "Game.hpp"
 
 model::Game::Game() {
 	pieceMap_ = {};
 	selected_ = nullptr;
 	turn_ = white;
+	srand(time(NULL));
 }
 
 model::Game::~Game() {
@@ -183,10 +185,6 @@ bool model::Game::setGame(std::list<std::string> specificationPiece) {
 	if ((pieceMap_.find("WK1") == pieceMap_.end()) || (pieceMap_.find("BK1") == pieceMap_.end()))
 		valid = false;
 
-	// TODO : Mettre dans un Doubleton
-	if ((pieceMap_.find("WK2") != pieceMap_.end()) || (pieceMap_.find("BK2") != pieceMap_.end()))
-		valid = false;
-
 	if (valid == false) {
 		clearAllPieces();
 		return false;
@@ -197,12 +195,28 @@ bool model::Game::setGame(std::list<std::string> specificationPiece) {
 }
 
 void model::Game::setNewGame() {
+	setFromBackline("RNBQKBNR");
+}
+
+void model::Game::setFischerRandomGame() {
+	std::string backlinePossibility = "RNBQKBNR", backline = "";
+	unsigned int piecePosition = 0;
+
+	while (backlinePossibility.size()) {
+		piecePosition = rand() % backlinePossibility.size();
+		backline.push_back(backlinePossibility[piecePosition]);
+		backlinePossibility.erase(piecePosition, 1);
+	}
+
+	setFromBackline(backline);
+}
+
+void model::Game::setFromBackline(std::string backline) {
 	unsigned char color = 'W';
-	std::string backline = "RNBQKBNR";
 	Position position("a1");
 	std::string newKey = "";
-	unsigned int colorChange = 4, blackBackLine = 7, blackFrontLine = 6, 
-							 whiteBackLine = 0, whiteFrontLine = 1;
+	unsigned int colorChange = 4, blackBackLine = 7, blackFrontLine = 6,
+		whiteBackLine = 0, whiteFrontLine = 1;
 
 	for (unsigned int y : iter::range(8)) {
 		if (y == colorChange)

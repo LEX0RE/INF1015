@@ -46,7 +46,19 @@
     <ClCompile Include="History.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Chess.cpp">
+    <ClCompile Include="ChessScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ChoiceScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BoardView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PieceView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -54,10 +66,22 @@
     <QtMoc Include="Piece.hpp">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="Chess.hpp">
+    <QtMoc Include="ChessScene.hpp">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Game.hpp">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="BoardView.hpp">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="PieceView.hpp">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Window.hpp">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="ChoiceScene.hpp">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

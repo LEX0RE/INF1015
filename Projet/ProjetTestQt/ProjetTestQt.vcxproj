@@ -113,16 +113,24 @@
   <ItemGroup>
     <ClCompile Include="bibliotheque_cours\bibliotheque_cours.cpp" />
     <ClCompile Include="bibliotheque_cours\verification_allocation.cpp" />
-    <ClCompile Include="Chess.cpp" />
+    <ClCompile Include="BoardView.cpp" />
+    <ClCompile Include="ChessScene.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="History.cpp" />
+    <ClCompile Include="ChoiceScene.cpp" />
     <ClCompile Include="Piece.cpp" />
+    <ClCompile Include="PieceView.cpp" />
     <ClCompile Include="TestBoard.cpp" />
     <ClCompile Include="googletest\src\gtest-all.cc" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="Chess.hpp" />
+    <QtMoc Include="Window.hpp" />
+    <QtMoc Include="PieceView.hpp" />
+    <QtMoc Include="BoardView.hpp" />
+    <QtMoc Include="ChoiceScene.hpp" />
+    <QtMoc Include="ChessScene.hpp" />
     <QtMoc Include="Game.hpp" />
     <QtMoc Include="Piece.hpp" />
     <ClInclude Include="History.hpp" />

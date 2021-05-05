@@ -8,7 +8,7 @@
 
 #include <QApplication>
 #include <iostream>
-#include "Chess.hpp"
+#include "Window.hpp"
 
 
 #if __has_include("bibliotheque_cours.hpp")
