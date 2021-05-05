@@ -15,6 +15,7 @@ model::Game::Game() {
 	pieceMap_ = {};
 	selected_ = nullptr;
 	turn_ = white;
+
 	srand(time(NULL));
 }
 
@@ -51,7 +52,7 @@ bool model::Game::addPiece(const std::string specification) {
 			return false;
 
 		if ((specification[2] >= 'a' && specification[2] <= 'h') &&
-			(specification[3] >= '1' && specification[3] <= '8'))
+			  (specification[3] >= '1' && specification[3] <= '8'))
 			position = Position(specification.substr(2, 2));
 		else
 			return false;
@@ -84,6 +85,7 @@ bool model::Game::addPiece(const PieceColor& color,
 													 const unsigned char& type, 
 													 const Position& position) {
 	Piece* piece = nullptr;
+
 	switch (type) {
 		case 'K':
 			piece = King::getInstance(color, position);
@@ -106,6 +108,7 @@ bool model::Game::addPiece(const PieceColor& color,
 		default:
 			return false;
 	}
+
 	pieceMap_[(*piece).getName()] = piece;
 	return true;
 }
@@ -122,6 +125,7 @@ void model::Game::clearAllPieces() {
 		for (auto& [key, value] : pieceMap_)
 			delete value;
 	}
+
 	pieceMap_.clear();
 }
 
@@ -132,6 +136,7 @@ model::Piece* model::Game::getPiece(const model::Position position) const {
 				return value;
 		}
 	}
+
 	return nullptr;
 }
 
@@ -142,6 +147,7 @@ bool model::Game::action(const model::Position position) {
 		return movePiece(position);
 	else if (actionPiece != nullptr)
 		return selectPiece(actionPiece);
+
 	return false;
 }
 
@@ -155,10 +161,12 @@ bool model::Game::movePiece(const Position position) {
 
 		selectPiece(selected_);
 		Piece::generatePossibility();
+
 		if (turn_ == white)
 			turn_ = black;
 		else
 			turn_ = white;
+
 		emit updatePiece(pieceMap_);
 		return true;
 	}
@@ -189,14 +197,13 @@ bool model::Game::setGame(std::list<std::string> specificationPiece) {
 		clearAllPieces();
 		return false;
 	}
+
 	Piece::generatePossibility();
 	emit updatePiece(pieceMap_);
 	return true;
 }
 
-void model::Game::setNewGame() {
-	setFromBackline("RNBQKBNR");
-}
+void model::Game::setNewGame() { setFromBackline("RNBQKBNR"); }
 
 void model::Game::setFischerRandomGame() {
 	std::string backlinePossibility = "RNBQKBNR", backline = "";
@@ -216,25 +223,30 @@ void model::Game::setFromBackline(std::string backline) {
 	Position position("a1");
 	std::string newKey = "";
 	unsigned int colorChange = 4, blackBackLine = 7, blackFrontLine = 6,
-		whiteBackLine = 0, whiteFrontLine = 1;
+							 whiteBackLine = 0, whiteFrontLine = 1;
 
 	for (unsigned int y : iter::range(8)) {
 		if (y == colorChange)
 			color = 'B';
+
 		for (unsigned int x : iter::range(8)) {
 			newKey = "";
 			position = Position((unsigned char)('a' + x), (unsigned char)('1' + y));
+
 			if (y <= whiteFrontLine || y >= blackFrontLine) {
 				newKey = color;
+
 				if (y == whiteBackLine || y == blackBackLine)
 					newKey += backline[x];
 				else
 					newKey += 'P';
+
 				newKey += position.name();
 				addPiece(newKey);
 			}
 		}
 	}
+
 	Piece::generatePossibility();
 	emit updatePiece(pieceMap_);
 }

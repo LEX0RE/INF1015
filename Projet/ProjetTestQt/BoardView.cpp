@@ -15,6 +15,7 @@ view::SquareView::SquareView(Qt::GlobalColor color, QPoint position, QGraphicsIt
 	position_ = position;
 	piece_ = nullptr;
 	QRectF rect(0, 0, SQUARE_SIZE, SQUARE_SIZE);
+
 	square_ = new QGraphicsRectItem(rect, this);
 	square_->setBrush(color_);
 	square_->setParentItem(this);
@@ -88,20 +89,19 @@ view::PieceView* view::SquareView::getPiece() const { return piece_; }
 view::BoardView::BoardView(QGraphicsItem* parent) : QGraphicsWidget(parent) {
 	highlightSquareList_ = {};
 	grid_ = new QGraphicsGridLayout(this);
-	setGeometry(QRectF(0, 0, SQUARE_SIZE * 8, SQUARE_SIZE * 8));
+	setGeometry(QRectF(0, 0, SQUARE_SIZE * N_SQUARE, SQUARE_SIZE * N_SQUARE));
 
 	for (unsigned int y : range(8)) {
 		for (unsigned int x : range(8)) {
 			SquareView* square = nullptr;
+
 			if ((x + y) % 2)
 				square = new SquareView(Qt::blue, QPoint(x, y));
 			else
 				square = new SquareView(Qt::cyan, QPoint(x, y));
+
 			grid_->addItem(square, y, x);
 			squareList_.push_back(square);
-			QRectF rect = geometry();
-			QSizeF s = size();
-
 		}
 	}
 	setLayout(grid_);
@@ -111,18 +111,19 @@ void view::BoardView::reloadPossibility(std::list<model::Position> possibility) 
 	if (highlightSquareList_.size() > 0) {
 		for (auto square : highlightSquareList_)
 			square->lowlight();
+
 		highlightSquareList_.clear();
 	}
-	else {
-		if (possibility.size() > 0) {
-			for (auto position : possibility) {
-				unsigned int x = position.x - 'a';
-				unsigned int y = '8' - position.y;
-				SquareView* square = dynamic_cast<SquareView*>(grid_->itemAt(y, x));
-				if (square != nullptr)
-					square->highlight(Qt::green);
-				highlightSquareList_.push_back(square);
-			}
+	else if (possibility.size() > 0) {
+		for (auto position : possibility) {
+			unsigned int x = position.x - 'a';
+			unsigned int y = '8' - position.y;
+			SquareView* square = dynamic_cast<SquareView*>(grid_->itemAt(y, x));
+
+			if (square != nullptr)
+				square->highlight(Qt::green);
+
+			highlightSquareList_.push_back(square);
 		}
 	}
 }
@@ -155,6 +156,7 @@ void view::BoardView::reloadPiece(std::map<std::string, model::Piece*> pieceMap)
 				}
 				else {
 					squareOfPiece(pieceFound)->removePiece();
+
 					if (pieceFound != nullptr)
 						square->addPiece(pieceFound);
 					else
@@ -166,9 +168,10 @@ void view::BoardView::reloadPiece(std::map<std::string, model::Piece*> pieceMap)
 }
 
 void view::BoardView::clearPieces() {
-	for (auto y : range(8)) {
-		for (auto x : range(8)) {
+	for (auto y : range(N_SQUARE)) {
+		for (auto x : range(N_SQUARE)) {
 			SquareView* square = dynamic_cast<SquareView*>(grid_->itemAt(y, x));
+
 			if (square != nullptr)
 				square->deletePiece();
 		}
@@ -176,9 +179,10 @@ void view::BoardView::clearPieces() {
 }
 
 view::PieceView* view::BoardView::searchPiece(std::string name) const {
-	for (auto y : range(8)) {
-		for (auto x : range(8)) {
+	for (auto y : range(N_SQUARE)) {
+		for (auto x : range(N_SQUARE)) {
 			SquareView* square = dynamic_cast<SquareView*>(grid_->itemAt(y, x));
+
 			if (square != nullptr && square->getPiece() != nullptr) {
 				if (square->getPiece()->getName() == name)
 					return square->getPiece();
@@ -189,9 +193,10 @@ view::PieceView* view::BoardView::searchPiece(std::string name) const {
 }
 
 view::SquareView* view::BoardView::squareOfPiece(PieceView* piece) const {
-	for (auto y : range(8)) {
-		for (auto x : range(8)) {
+	for (auto y : range(N_SQUARE)) {
+		for (auto x : range(N_SQUARE)) {
 			SquareView* square = dynamic_cast<SquareView*>(grid_->itemAt(y, x));
+
 			if (square != nullptr && square->getPiece() == piece)
 					return square;
 		}

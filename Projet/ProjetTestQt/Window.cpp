@@ -13,8 +13,10 @@
 view::Window::Window() {
 	setStyleSheet("background-color:black;");
 	setWindowTitle("Chess");
+
 	ChoiceScene* currentScene = new ChoiceScene(this);
 	setScene(currentScene);
+
 	QGraphicsView::fitInView(scene()->sceneRect(), Qt::KeepAspectRatio);
 	setNextScene(new ChessScene(this));
 }
@@ -39,7 +41,7 @@ void view::Window::changeScene() {
 		if (button != nullptr)
 			dynamic_cast<ChessScene*>(nextScene_)->setGameConfiguration(button->text().toStdString());
 
-		resize(QSize(1000, 800));
+		resize(QSize(800, 800));
 		QGraphicsView::fitInView(scene()->sceneRect(), Qt::KeepAspectRatio);
 	}
 }

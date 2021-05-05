@@ -16,25 +16,34 @@ using namespace std;
 
 TEST(Game, initialisation) {
 	model::Game* game = new model::Game();
+
 	list<string> positioning = { "WKe8", "WKe8" };
 	EXPECT_EQ(game->setGame(positioning), false);
+
 	positioning = { "WKa1", "BKa1" };
 	EXPECT_EQ(game->setGame(positioning), false);
+
 	positioning = { "BPh8"};
 	EXPECT_EQ(game->setGame(positioning), false);
+
 	positioning = { "BPh1",  "WKe1", "BKe8" };
 	EXPECT_EQ(game->setGame(positioning), false);
+
 	positioning = { "WPh1", "BQh1", "WKe1", "BKe8" };
 	EXPECT_EQ(game->setGame(positioning), false);
+
 	positioning = { "WPh1", "BPh1", "WKe1", "BKe8" };
 	EXPECT_EQ(game->setGame(positioning), false);
+
 	positioning = { "WKa1", "WKa2", "BKa3" };
 	EXPECT_EQ(game->setGame(positioning), true); // Le système enlève le White King de trop
 	delete game;
+
 	game = new model::Game();
 	positioning = { "WKe1", "BKe8", "WKe4" };
 	EXPECT_EQ(game->setGame(positioning), true); // Le système enlève le White King de trop
 	delete game;
+
 	game = new model::Game();
 	positioning = { "WPh2", "BQb4", "WKe1", "BKe8" };
 	EXPECT_EQ(game->setGame(positioning), true);
@@ -46,10 +55,12 @@ TEST(Game, mouvements_disponibles) {
 	list<string> positioning = { "WBe1", "BNf2", "BQd1", "WKf1", "BKe3", "WRa4", "BPb5", "WPb2" };
 	game->setGame(positioning);
 	list<model::Position> expected = {};
+
 	list<model::Position> obtained = game->getPieceMap()["WB1"]->getPossibility();
 	expected.sort();
 	obtained.sort();
 	EXPECT_EQ(obtained , expected);
+
 	expected = { model::Position("d3"), model::Position("e4"), 
 							 model::Position("g4"), model::Position("h3"), 
 							 model::Position("h1") };
@@ -57,6 +68,7 @@ TEST(Game, mouvements_disponibles) {
 	expected.sort();
 	obtained.sort();
 	EXPECT_EQ(obtained, expected);
+
 	expected = { model::Position("a1"), model::Position("a4"), model::Position("b1"), model::Position("b3"),
 		           model::Position("c1"), model::Position("c2"), model::Position("d2"), model::Position("d3"), 
 		           model::Position("d4"), model::Position("d5"), model::Position("d6"), model::Position("d7"), 
@@ -66,16 +78,19 @@ TEST(Game, mouvements_disponibles) {
 	expected.sort();
 	obtained.sort();
 	EXPECT_EQ(obtained, expected);
+
 	expected = { model::Position("g1"), model::Position("g2") };
 	obtained = game->getPieceMap()["WK1"]->getPossibility();
 	expected.sort();
 	obtained.sort();
 	EXPECT_EQ(obtained, expected);
+
 	expected = { model::Position("d3"), model::Position("f3") };
 	obtained = game->getPieceMap()["BK1"]->getPossibility();
 	expected.sort();
 	obtained.sort();
 	EXPECT_EQ(obtained, expected);
+
 	expected = { model::Position("a1"), model::Position("a2"),
 							 model::Position("a3"), model::Position("a5"),
 							 model::Position("a6"), model::Position("a7"),
@@ -87,16 +102,19 @@ TEST(Game, mouvements_disponibles) {
 	expected.sort();
 	obtained.sort();
 	EXPECT_EQ(obtained, expected);
+
 	expected = { model::Position("b4"), model::Position("a4")};
 	obtained = game->getPieceMap()["BP1"]->getPossibility();
 	expected.sort();
 	obtained.sort();
 	EXPECT_EQ(obtained, expected);
+
 	expected = { model::Position("b3"), model::Position("b4")};
 	obtained = game->getPieceMap()["WP1"]->getPossibility();
 	expected.sort();
 	obtained.sort();
 	EXPECT_EQ(obtained, expected);
+
 	delete game;
 }
 
@@ -104,28 +122,40 @@ TEST(Game, mouvements) {
 	model::Game* game = new model::Game();
 	list<string> positioning = { "WKd5", "BKe4", "WQb2", "BBc5", "WNe5" };
 	game->setGame(positioning);
+
 	game->action(model::Position("d5"));
 	EXPECT_EQ(game->action(model::Position("e5")), false);
+
 	game->action(model::Position("d5"));
 	EXPECT_EQ(game->action(model::Position("e6")), true);
+
 	game->action(model::Position("e4"));
 	EXPECT_EQ(game->action(model::Position("d4")), false);
+
 	game->action(model::Position("e4"));
 	EXPECT_EQ(game->action(model::Position("f4")), true);
+
 	game->action(model::Position("b2"));
 	EXPECT_EQ(game->action(model::Position("e5")), false);
+
 	game->action(model::Position("b2"));
 	EXPECT_EQ(game->action(model::Position("f2")), true);
+
 	game->action(model::Position("c5"));
 	EXPECT_EQ(game->action(model::Position("a7")), false);
+
 	game->action(model::Position("c5"));
 	EXPECT_EQ(game->action(model::Position("f2")), true);
+
 	game->action(model::Position("e5"));
 	EXPECT_EQ(game->action(model::Position("f4")), false);
+
 	game->action(model::Position("e5"));
 	EXPECT_EQ(game->action(model::Position("f3")), true);
+
 	game->action(model::Position("e5"));
 	EXPECT_EQ(game->action(model::Position("e5")), false);
+
 	delete game;
 }
 
@@ -173,6 +203,7 @@ TEST(Game, ClassicGame) {
 
 	EXPECT_EQ(game->getPieceMap()["BQ1"]->getPosition(), model::Position("d8"));
 	EXPECT_EQ(game->getPieceMap()["BK1"]->getPosition(), model::Position("e8"));
+
 	delete game;
 }
 
@@ -220,6 +251,7 @@ TEST(Game, FischerRandomGame) {
 
 	EXPECT_NE(game->getPieceMap()["BQ1"], nullptr);
 	EXPECT_NE(game->getPieceMap()["BK1"], nullptr);
+
 	delete game;
 }
 

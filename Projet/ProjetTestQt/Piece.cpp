@@ -64,17 +64,17 @@ model::Piece::Piece(const PieceColor& color,
 		name_ = "W";
 	else
 		name_ = "B";
+
 	name_ += type;
 	name_ += "1";
-	while (allPieces_.find(name_) != allPieces_.end()) {
+
+	while (allPieces_.find(name_) != allPieces_.end())
 		name_[2] = name_[2] + 1;
-	}
+
 	allPieces_[name_] = this;
 }
 
-model::Piece::~Piece() {
-	allPieces_.erase(name_);
-}
+model::Piece::~Piece() { allPieces_.erase(name_); }
 
 string model::Piece::getName() const { return name_; }
 
@@ -84,6 +84,7 @@ model::Position model::Piece::getPosition() const { return position_; }
 
 void model::Piece::generatePossibility() {
 	bool blackCheck = false, whiteCheck = false;
+
 	if (allPieces_.size() > 0) {
 		for (auto& [key, value] : allPieces_)
 			value->checkPossibility();
@@ -92,18 +93,19 @@ void model::Piece::generatePossibility() {
 	if (allPieces_.size() > 0) {
 		for (auto& [key, value] : allPieces_)
 			value->removeCheckSelfPossibility();
-}
+	}
 }
 
 void model::Piece::removeCheckSelfPossibility() {
 	list<Position> toRemove;
+
 	if (possibility_.size() > 0) {
 		for (auto position : possibility_) {
-			if (isRemovingCheck(position) == false) {
+			if (isRemovingCheck(position) == false)
 				toRemove.push_back(position);
-			}
 		}
 	}
+
 	if (toRemove.size() > 0) {
 		for (auto position : toRemove)
 			possibility_.remove(position);
@@ -122,11 +124,13 @@ bool model::Piece::movePiece(const Position& position) {
 			}
 		}
 	}
+
 	return false;
 }
 
 bool model::Piece::isDoingCheck() {
 	Position kingPosition;
+
 	if (color_ == white)
 		kingPosition = allPieces_["BK1"]->getPosition();
 	else
@@ -139,12 +143,14 @@ bool model::Piece::isDoingCheck() {
 			}
 		}
 	}
+
 	return false;
 }
 
 bool model::Piece::isRemovingCheck(const Position& position) {
 	Position piecePosition = position_, kingPosition;
 	Piece* pieceEaten = nullptr;
+
 	if (allPieces_["WK1"] == this || allPieces_["BK1"] == this)
 		kingPosition = position;
 	else if (color_ == white)
@@ -160,6 +166,7 @@ bool model::Piece::isRemovingCheck(const Position& position) {
 			}
 		}
 	}
+
 	position_ = position;
 
 	if (allPieces_.size() > 0) {
@@ -179,6 +186,7 @@ bool model::Piece::isRemovingCheck(const Position& position) {
 					return false;
 				}
 			}
+
 			value->possibility_ = move(savePosibility);
 		}
 	}
@@ -195,12 +203,16 @@ model::AddMoveState model::Piece::addMove(const Position& position) {
 		if (position.x >= 'a' && position.x <= 'h' && position.y <= '8' && position.y >= '1') {
 			if (atAlly(position))
 				return stop;
+
 			possibility_.push_back(position);
+
 			if (atEnemy(position))
 				return stop;
+
 			return add;
 		}
 	}
+
 	return stop;
 }
 
@@ -211,6 +223,7 @@ void model::Piece::addDirection(int iterateX, int iterateY, iter::impl::Range<in
 	for (int i : range) {
 		if (valid) {
 			Position test = Position(position_.x + (i * iterateX), position_.y + (i * iterateY));
+
 			if (addMove(test) == stop)
 				valid = false;
 		}
@@ -224,6 +237,7 @@ bool model::Piece::atAlly(const Position& position) const {
 				return true;
 		}
 	}
+
 	return false;
 }
 
@@ -234,6 +248,7 @@ bool model::Piece::atEnemy(const Position& position) const {
 				return true;
 		}
 	}
+
 	return false;
 }
 
@@ -251,13 +266,11 @@ model::King* model::King::getInstance(const PieceColor& color, const Position& p
 				instance = new King(color, position);
 				instanceList_.push_back(instance);
 			}
-			else {
+			else
 				throw TwoSameColorKings("Two Kings of the same color have been created");
-			}
 		}
-		else {
+		else
 			throw TooManyKings("Too many Kings have been created");
-		}
 	}
 	catch (TwoSameColorKings& e) {
 		std::cout << e.what() << std::endl;
@@ -265,6 +278,7 @@ model::King* model::King::getInstance(const PieceColor& color, const Position& p
 	catch (TooManyKings& e) {
 		std::cout << e.what() << std::endl;
 	}
+
 	return instanceList_.back();
 }
 
@@ -277,6 +291,7 @@ model::King::~King() {
 				toDelete = it;
 			}
 		}
+
 		instanceList_.remove(toDelete);
 	}
 }
@@ -286,6 +301,7 @@ model::King::King(const PieceColor& color, const Position& position) : Piece(col
 void model::King::checkPossibility() {
 	possibility_.clear();
 	list<Position> possibility;
+
 	for (int x : iter::range(-1, 2)) {
 		for (int y : iter::range(-1, 2)) {
 			if (x != 0 || y != 0) {
@@ -300,6 +316,7 @@ model::Queen::Queen(const PieceColor& color, const Position& position) : Piece(c
 
 void model::Queen::checkPossibility() {
 	possibility_.clear();
+
 	addDirection(1, 1, iter::range(1, 8));
 	addDirection(-1, 1, iter::range(1, 8));
 	addDirection(1, -1, iter::range(1, 8));
@@ -314,7 +331,9 @@ model::Knight::Knight(const PieceColor& color, const Position& position) : Piece
 
 void model::Knight::checkPossibility() {
 	possibility_.clear();
+
 	list<Position> possibility;
+
 	for (int x : iter::range(-2, 3)) {
 		for (int y : iter::range(-2, 3)) {
 			if ((x != 0) && (y != 0) && (x != y) && (-x != y)) {
@@ -329,6 +348,7 @@ model::Bishop::Bishop(const PieceColor& color, const Position& position) : Piece
 
 void model::Bishop::checkPossibility() {
 	possibility_.clear();
+
 	addDirection(1, 1, iter::range(1, 8));
 	addDirection(-1, 1, iter::range(1, 8));
 	addDirection(1, -1, iter::range(1, 8));
@@ -339,6 +359,7 @@ model::Rook::Rook(const PieceColor& color, const Position& position) : Piece(col
 
 void model::Rook::checkPossibility() {
 	possibility_.clear();
+
 	addDirection(1, 0, iter::range(1, 8));
 	addDirection(-1, 0, iter::range(1, 8));
 	addDirection(0, 1, iter::range(1, 8));
@@ -349,6 +370,7 @@ model::Pawn::Pawn(const PieceColor& color, const Position& position) : Piece(col
 
 void model::Pawn::checkPossibility() {
 	possibility_.clear();
+
 	Position test;
 	char direction = 1;
 	int maxMove = 1;
@@ -362,6 +384,7 @@ void model::Pawn::checkPossibility() {
 	for (int i : iter::range(1, 1 + maxMove)) {
 		if (valid) {
 			Position test = Position(position_.x, position_.y + (i * direction));
+
 			if (atEnemy(test) == false) {
 				if (addMove(test) == stop)
 					valid = false;
@@ -371,9 +394,12 @@ void model::Pawn::checkPossibility() {
 		}
 	}
 	test = Position(position_.x - 1, position_.y + direction);
+
 	if (atEnemy(test))
 		addMove(test);
+
 	test.x += 2;
+
 	if (atEnemy(test))
 		addMove(test);
 }

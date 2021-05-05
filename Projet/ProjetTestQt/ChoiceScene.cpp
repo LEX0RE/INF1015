@@ -1,6 +1,6 @@
 /**
-* Gestion de la vue du menu
-* \file   BMenuScene.cpp
+* Gestion de la vue du menu de sélection
+* \file   ChoiceScene.cpp
 * \author Ioana Daria Danciu et Alexandre Gelinas
 * \date   04 mai 2021
 * Cree le 04 mai 2021
