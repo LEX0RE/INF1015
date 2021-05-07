@@ -43,27 +43,28 @@ bool model::Game::addPiece(const std::string specification) {
 		PieceColor color;
 		Position position;
 		unsigned char type;
+		unsigned int rowIndex = 3, columnIndex = 2, colorIndex = 0, typeIndex = 1;
 
-		if (specification[0] == 'W')
+		if (specification[colorIndex] == 'W')
 			color = white;
-		else if (specification[0] == 'B')
+		else if (specification[colorIndex] == 'B')
 			color = black;
 		else
 			return false;
 
-		if ((specification[2] >= 'a' && specification[2] <= 'h') &&
-			  (specification[3] >= '1' && specification[3] <= '8'))
+		if ((specification[columnIndex] >= 'a' && specification[columnIndex] <= 'h') &&
+			  (specification[rowIndex] >= '1' && specification[rowIndex] <= '8'))
 			position = Position(specification.substr(2, 2));
 		else
 			return false;
 
-		switch (specification[1]) {
+		switch (specification[typeIndex]) {
 		case 'P':
 			if (position.y == '1' || position.y == '8')
 				return false;
 			[[fallthrough]];
 		case 'K': case 'Q': case 'B': case 'N': case 'R':
-			type = specification[1];
+			type = specification[typeIndex];
 			break;
 		default:
 			return false;
@@ -225,11 +226,11 @@ void model::Game::setFromBackline(std::string backline) {
 	unsigned int colorChange = 4, blackBackLine = 7, blackFrontLine = 6,
 							 whiteBackLine = 0, whiteFrontLine = 1;
 
-	for (unsigned int y : iter::range(8)) {
+	for (unsigned int y : iter::range(N_SQUARE)) {
 		if (y == colorChange)
 			color = 'B';
 
-		for (unsigned int x : iter::range(8)) {
+		for (unsigned int x : iter::range(N_SQUARE)) {
 			newKey = "";
 			position = Position((unsigned char)('a' + x), (unsigned char)('1' + y));
 

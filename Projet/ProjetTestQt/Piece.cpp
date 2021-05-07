@@ -317,14 +317,14 @@ model::Queen::Queen(const PieceColor& color, const Position& position) : Piece(c
 void model::Queen::checkPossibility() {
 	possibility_.clear();
 
-	addDirection(1, 1, iter::range(1, 8));
-	addDirection(-1, 1, iter::range(1, 8));
-	addDirection(1, -1, iter::range(1, 8));
-	addDirection(-1, -1, iter::range(1, 8));
-	addDirection(1, 0, iter::range(1, 8));
-	addDirection(-1, 0, iter::range(1, 8));
-	addDirection(0, 1, iter::range(1, 8));
-	addDirection(0, -1, iter::range(1, 8));
+	addDirection(1, 1, iter::range(1, N_SQUARE));
+	addDirection(-1, 1, iter::range(1, N_SQUARE));
+	addDirection(1, -1, iter::range(1, N_SQUARE));
+	addDirection(-1, -1, iter::range(1, N_SQUARE));
+	addDirection(1, 0, iter::range(1, N_SQUARE));
+	addDirection(-1, 0, iter::range(1, N_SQUARE));
+	addDirection(0, 1, iter::range(1, N_SQUARE));
+	addDirection(0, -1, iter::range(1, N_SQUARE));
 }
 
 model::Knight::Knight(const PieceColor& color, const Position& position) : Piece(color, 'N', position) {}
@@ -349,10 +349,10 @@ model::Bishop::Bishop(const PieceColor& color, const Position& position) : Piece
 void model::Bishop::checkPossibility() {
 	possibility_.clear();
 
-	addDirection(1, 1, iter::range(1, 8));
-	addDirection(-1, 1, iter::range(1, 8));
-	addDirection(1, -1, iter::range(1, 8));
-	addDirection(-1, -1, iter::range(1, 8));
+	addDirection(1, 1, iter::range(1, N_SQUARE));
+	addDirection(-1, 1, iter::range(1, N_SQUARE));
+	addDirection(1, -1, iter::range(1, N_SQUARE));
+	addDirection(-1, -1, iter::range(1, N_SQUARE));
 }
 
 model::Rook::Rook(const PieceColor& color, const Position& position) : Piece(color, 'R', position) {}
@@ -360,10 +360,10 @@ model::Rook::Rook(const PieceColor& color, const Position& position) : Piece(col
 void model::Rook::checkPossibility() {
 	possibility_.clear();
 
-	addDirection(1, 0, iter::range(1, 8));
-	addDirection(-1, 0, iter::range(1, 8));
-	addDirection(0, 1, iter::range(1, 8));
-	addDirection(0, -1, iter::range(1, 8));
+	addDirection(1, 0, iter::range(1, N_SQUARE));
+	addDirection(-1, 0, iter::range(1, N_SQUARE));
+	addDirection(0, 1, iter::range(1, N_SQUARE));
+	addDirection(0, -1, iter::range(1, N_SQUARE));
 }
 
 model::Pawn::Pawn(const PieceColor& color, const Position& position) : Piece(color, 'P', position) {}

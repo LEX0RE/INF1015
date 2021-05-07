@@ -7,8 +7,6 @@
 * Cree le 04 mai 2021
 */
 
-#define N_SQUARE 8
-
 #pragma warning(push, 0) // Sinon Qt fait des avertissements à /W4.
 #include <QGraphicsGridLayout>
 #include <QGraphicsWidget>
